@@ -1,3 +1,26 @@
+# Visual Studio files
+*.suo
+*.user
+*.ncb
+*.sdf
+ipch/
+.vs/
+
+# Build output
+bin/
+obj/
+Debug/
+Release/
+x64/
+
+# NuGet packages
+packages/
+
+# Other generated files
+*.log
+TestResults/
+temp/
+
 # Prerequisites
 *.d
 
@@ -13,7 +36,8 @@
 
 # Compiled Dynamic libraries
 *.so
-*.dylib
+*.dylib   
+
 *.dll
 
 # Fortran module files
@@ -28,5 +52,6 @@
 
 # Executables
 *.exe
-*.out
+*.out   
+
 *.app
