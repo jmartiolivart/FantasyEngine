@@ -1,0 +1,16 @@
+﻿  Application.cpp
+  log.cpp
+  Main.cpp
+C:\Users\jmart\Desktop\Màster Videojocs\FantasyEngine\Source\log.cpp(15,2): error C2664: 'void OutputDebugStringW(LPCWSTR)': el argumento 1 no puede convertirse de 'char [4096]' a 'LPCWSTR'
+      C:\Users\jmart\Desktop\Màster Videojocs\FantasyEngine\Source\log.cpp(15,20):
+      Los tipos señalados no están relacionados; la conversión requiere reinterpret_cast, conversión de estilo de C o conversión de estilo de función entre paréntesis
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\debugapi.h(61,1):
+      vea la declaración de 'OutputDebugStringW'
+      C:\Users\jmart\Desktop\Màster Videojocs\FantasyEngine\Source\log.cpp(15,2):
+      al hacer coincidir la lista de argumentos '(char [4096])'
+  
+  ModuleInput.cpp
+  ModuleOpenGL.cpp
+C:\Users\jmart\Desktop\Màster Videojocs\FantasyEngine\Source\ModuleOpenGL.cpp(5,10): error C1083: No se puede abrir el archivo incluir: 'SDL.h': No such file or directory
+  ModuleWindow.cpp
+  Generando código...
