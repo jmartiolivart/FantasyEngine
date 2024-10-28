@@ -46,8 +46,6 @@ bool ModuleOpenGL::Init()
 	glEnable(GL_CULL_FACE); // Enable cull backward faces
 	glFrontFace(GL_CCW); // Front faces will be counter clockwise
 
-
-
 	return true;
 }
 

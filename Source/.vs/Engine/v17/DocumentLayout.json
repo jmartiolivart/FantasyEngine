@@ -38,8 +38,7 @@
               "RelativeToolTip": "Globals.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-26T16:18:44.591Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-26T16:18:44.591Z"
             },
             {
               "$type": "Document",
@@ -51,8 +50,7 @@
               "RelativeToolTip": "ModuleWindow.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-26T16:02:28.154Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-26T16:02:28.154Z"
             },
             {
               "$type": "Document",
@@ -62,7 +60,7 @@
               "RelativeDocumentMoniker": "ModuleWindow.cpp",
               "ToolTip": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleWindow.cpp",
               "RelativeToolTip": "ModuleWindow.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAABkAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-10-26T16:02:26.957Z",
               "EditorCaption": ""
@@ -75,7 +73,7 @@
               "RelativeDocumentMoniker": "ModuleOpenGL.cpp",
               "ToolTip": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleOpenGL.cpp",
               "RelativeToolTip": "ModuleOpenGL.cpp",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAAADgAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAACcAAAAAAAAAAAAAAC4AAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-10-26T16:00:00.572Z",
               "EditorCaption": ""

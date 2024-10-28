@@ -1,10 +1,10 @@
 # Visual Studio files
+.vs/**/*  # Ignore all files and folders within .vs directory
 *.suo
 *.user
 *.ncb
 *.sdf
 ipch/
-.vs/
 
 # Build output
 bin/
