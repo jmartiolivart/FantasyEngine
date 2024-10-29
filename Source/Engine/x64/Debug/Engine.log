@@ -1,3 +1,0 @@
-﻿  ModuleOpenGL.cpp
-C:\Users\jmart\Desktop\Màster Videojocs\FantasyEngine\Source\ModuleOpenGL.cpp(80,2): error C3861: 'LoadShaderSource': no se encontró el identificador
-C:\Users\jmart\Desktop\Màster Videojocs\FantasyEngine\Source\ModuleOpenGL.cpp(81,2): error C3861: 'LoadShaderSource': no se encontró el identificador
