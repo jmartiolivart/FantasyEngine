@@ -5,18 +5,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleOpenGL.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|solutionrelative:ModuleOpenGL.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|solutionrelative:ModuleWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\Globals.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|solutionrelative:Globals.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleWindow.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{EBCCD73A-A6B7-458D-8C04-9E787251DA0F}|Engine.vcxproj|solutionrelative:ModuleWindow.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,45 +14,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Globals.h",
-              "DocumentMoniker": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\Globals.h",
-              "RelativeDocumentMoniker": "Globals.h",
-              "ToolTip": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\Globals.h",
-              "RelativeToolTip": "Globals.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-26T16:18:44.591Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ModuleWindow.h",
-              "DocumentMoniker": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleWindow.h",
-              "RelativeDocumentMoniker": "ModuleWindow.h",
-              "ToolTip": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleWindow.h",
-              "RelativeToolTip": "ModuleWindow.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-26T16:02:28.154Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ModuleWindow.cpp",
-              "DocumentMoniker": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleWindow.cpp",
-              "RelativeDocumentMoniker": "ModuleWindow.cpp",
-              "ToolTip": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleWindow.cpp",
-              "RelativeToolTip": "ModuleWindow.cpp",
-              "ViewState": "AgIAABsAAAAAAAAAAAAAABkAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-10-26T16:02:26.957Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -73,9 +24,9 @@
               "RelativeDocumentMoniker": "ModuleOpenGL.cpp",
               "ToolTip": "C:\\Users\\jmart\\Desktop\\M\u00E0ster Videojocs\\FantasyEngine\\Source\\ModuleOpenGL.cpp",
               "RelativeToolTip": "ModuleOpenGL.cpp",
-              "ViewState": "AgIAACcAAAAAAAAAAAAAAC4AAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAEQAAAAAAAAAAAAmwEgAAAB4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-10-26T16:00:00.572Z",
+              "WhenOpened": "2024-10-29T10:11:00.941Z",
               "EditorCaption": ""
             }
           ]

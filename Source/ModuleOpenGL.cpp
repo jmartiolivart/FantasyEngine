@@ -61,6 +61,18 @@ update_status ModuleOpenGL::PreUpdate()
 // Called every draw update
 update_status ModuleOpenGL::Update()
 {
+	float vertices[9] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
+	};
+	
+	unsigned int VBO;
+	glGenBuffers(1, &VBO); //Generate the buffer ID
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);// Select the buffer
+	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), vertices, GL_STATIC_DRAW); // Initializes a buffer object's data store
+
+
 
 	return UPDATE_CONTINUE;
 }
@@ -85,3 +97,20 @@ void ModuleOpenGL::WindowResized(unsigned width, unsigned height)
 {
 }
 
+char* LoadShaderSource(const char* shader_file_name)
+{
+	char* data = nullptr;
+	FILE* file = nullptr;
+	fopen_s(&file, shader_file_name, "rb");
+	if (file)
+	{
+		fseek(file, 0, SEEK_END);
+		int size = ftell(file);
+		data = (char*)malloc(size + 1);
+		fseek(file, 0, SEEK_SET);
+		fread(data, 1, size, file);
+		data[size] = 0;
+		fclose(file);
+	}
+	return data;
+}
