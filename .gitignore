@@ -92,3 +92,6 @@ temp/
 *.user
 *.userosscache
 *.sln.docstates
+/Source/.vs
+/Source/Engine/x64/Debug
+Source/x64/Debug/Engine.pdb
