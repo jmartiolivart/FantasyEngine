@@ -2,9 +2,52 @@
 #include "Application.h"
 #include "ModuleOpenGL.h"
 #include "ModuleWindow.h"
+#include <iostream>
 #include "SDL.h"
 #include <GL/glew.h>
 
+
+
+unsigned int shader;
+
+static int CompileShader(unsigned int type, const std::string& source) {
+	unsigned int id = glCreateShader(type);
+	const char* src = source.c_str();
+	glShaderSource(id, 1, &src, nullptr);
+	glCompileShader(id);
+
+
+	int result;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE) {
+		int length;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		char* message = (char*)alloca(length * sizeof(char));
+		glGetShaderInfoLog(id, length, &length, message);
+		std::cout << "Failed to compile shader!" << std::endl;
+		std::cout << message << std::endl;
+		return 0;
+	}
+
+	return id;
+}
+
+static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
+
+	unsigned int program = glCreateProgram();
+	unsigned int vertexS = CompileShader(GL_VERTEX_SHADER, vertexShader);
+	unsigned int fragmentS = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+
+	glAttachShader(program, vertexS);
+	glAttachShader(program, fragmentS);
+	glLinkProgram(program);
+	glValidateProgram(program);
+
+	glDeleteShader(vertexS);
+	glDeleteShader(fragmentS);
+
+	return program;
+}
 
 ModuleOpenGL::ModuleOpenGL()
 {
@@ -27,7 +70,6 @@ bool ModuleOpenGL::Init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24); // we want to have a depth buffer with 24 bits
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8); // we want to have a stencil buffer with 8 bits
 	
-	SDL_GL_CreateContext(App->GetWindow()->window);
 	SDL_GLContext context = SDL_GL_CreateContext(App->GetWindow()->window);
 	if (context == NULL) {
 		LOG("Error creating OpenGL context: %s\n", SDL_GetError());
@@ -45,35 +87,80 @@ bool ModuleOpenGL::Init()
 	glEnable(GL_DEPTH_TEST); // Enable depth test
 	glEnable(GL_CULL_FACE); // Enable cull backward faces
 	glFrontFace(GL_CCW); // Front faces will be counter clockwise
+	glDisable(GL_CULL_FACE);
 
+	//Drawing Triangle Task
+	
+	float vertices[9] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
+	};
+
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
+
+	std::string vertexShader =
+		"#version 460 core\n"
+		"\n"
+		"layout(location = 0) in vec3 my_vertex_position;\n"
+		"void main()\n"
+		"{\n"
+		"gl_Position = vec4(my_vertex_position, 1.0);\n"
+		"}\n";
+
+	std::string fragmentShader =
+		"#version 460 core\n"
+		"out vec4 color;\n"
+		"void main()\n"
+		"{\n"
+		"    color = vec4(0.0, 1.0, 0.0, 1.0); // Color verd\n"
+		"}\n";
+
+
+	shader = CreateShader(vertexShader, fragmentShader);
+
+	if (shader == 0) {
+		LOG("Error creating shader");
+		return false;
+	}
 	return true;
 }
 
 update_status ModuleOpenGL::PreUpdate()
 {
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	glClearColor(5.0f, 5.0f, 0.5f, 1.0f);
+	
+	//glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	//glClearColor(5.0f, 5.0f, 0.5f, 1.0f);
+	glClearColor(0.2f, 0.3f, 0.8f, 1.0f);// Set clear color (black in this case)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(shader);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 	SDL_GL_SwapWindow(App->GetWindow()->window);
+
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		std::cout << "OpenGL error: " << err << std::endl;
+	}
+
+
 	return UPDATE_CONTINUE;
 }
 
 // Called every draw update
 update_status ModuleOpenGL::Update()
 {
-	float vertices[9] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
-	};
-	
-	unsigned int VBO;
-	glGenBuffers(1, &VBO); //Generate the buffer ID
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);// Select the buffer
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), vertices, GL_STATIC_DRAW); // Initializes a buffer object's data store
-
-
-
 	return UPDATE_CONTINUE;
 }
 
@@ -95,22 +182,4 @@ bool ModuleOpenGL::CleanUp()
 
 void ModuleOpenGL::WindowResized(unsigned width, unsigned height)
 {
-}
-
-char* LoadShaderSource(const char* shader_file_name)
-{
-	char* data = nullptr;
-	FILE* file = nullptr;
-	fopen_s(&file, shader_file_name, "rb");
-	if (file)
-	{
-		fseek(file, 0, SEEK_END);
-		int size = ftell(file);
-		data = (char*)malloc(size + 1);
-		fseek(file, 0, SEEK_SET);
-		fread(data, 1, size, file);
-		data[size] = 0;
-		fclose(file);
-	}
-	return data;
 }
