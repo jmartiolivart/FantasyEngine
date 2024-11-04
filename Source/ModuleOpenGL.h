@@ -21,5 +21,5 @@ public:
 	void WindowResized(unsigned width, unsigned height);
 
 private:
-	void* context;
+	void* context = nullptr;
 };
