@@ -22,4 +22,5 @@ public:
 
 private:
 	void* context = nullptr;
+	unsigned int VAO;
 };

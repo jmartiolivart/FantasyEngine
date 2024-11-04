@@ -45,8 +45,9 @@ bool ModuleOpenGL::Init()
 	LOG("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	glEnable(GL_DEPTH_TEST); // Enable depth test
-	glEnable(GL_CULL_FACE); // Enable cull backward faces
 	glFrontFace(GL_CCW); // Front faces will be counter clockwise
+	glDisable(GL_CULL_FACE);// Disable cull backward faces
+
 	
 	App->GetWindow()->window_width = new int;
 	App->GetWindow()->window_height = new int;
@@ -56,23 +57,36 @@ bool ModuleOpenGL::Init()
 	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Change the color and depth with the ones specified
 	
-	//Drawing Triangle Task
-	float vertices[9] = {
+	//Drawing Square Task
+	float vertices[12] = {
+	-0.5f, 0.5f, 0.0f,
+	 0.5f, 0.5f, 0.0f,
 	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
+	 0.5f, -0.5f, 0.0f
 	};
 
-	unsigned int VBO, VAO;
+	unsigned int indices[6] = {
+		0, 1, 2,
+		1, 2, 3
+	};
+
+	unsigned int VBO, EBO;
 	
+
+	//Affects attributs to be persistent
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
 	//Affects buffer
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	
-	//Affects attributs to be persistent
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	
+	//To draw the points
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
 	glEnableVertexAttribArray(0);
@@ -91,10 +105,7 @@ bool ModuleOpenGL::Init()
 		return false;
 	}
 
-	glUseProgram(program);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
-
+	
 	return true;
 }
 
@@ -107,6 +118,12 @@ update_status ModuleOpenGL::PreUpdate()
 // Called every draw update
 update_status ModuleOpenGL::Update()
 {
+	glUseProgram(program);
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
+	
 	return UPDATE_CONTINUE;
 }
 

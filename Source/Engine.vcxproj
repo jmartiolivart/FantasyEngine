@@ -162,10 +162,6 @@
     <ClInclude Include="ModuleOpenGL.h" />
     <ClInclude Include="ModuleWindow.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="default_fragment.glsl" />
-    <None Include="default_vertex.glsl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
