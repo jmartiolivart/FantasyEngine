@@ -22,5 +22,6 @@ public:
 
 private:
 	void* context = nullptr;
-	unsigned int VAO;
+	unsigned int VAO = 0;
+	int program = 0;
 };

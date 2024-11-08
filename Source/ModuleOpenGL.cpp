@@ -8,8 +8,22 @@
 #include "Shader.h"
 
 
+#define ASSERT(x) if (!(x)) __debugbreak(); //Macro that validates contidion
+#define GLCall(x) GLClearError();\
+	x;\
+	ASSERT(GLLogCall(#x, __FILE__, __LINE__))//Macro to not have to call the two function GLLogCall and GLLogCall every time
 
-unsigned int program;
+static void GLClearError() {
+	while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogCall(const char* function, const char* file, int line) {
+	while (GLenum error = glGetError()) {
+		LOG("[OpenGL Error] (%u): %s %s:%i\n", error, file, function, line);
+		return false;
+	}
+	return true;
+}
 
 ModuleOpenGL::ModuleOpenGL()
 {
@@ -71,25 +85,24 @@ bool ModuleOpenGL::Init()
 	};
 
 	unsigned int VBO, EBO;
-	
 
 	//Affects attributs to be persistent
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	GLCall(glGenVertexArrays(1, &VAO));
+	GLCall(glBindVertexArray(VAO));
 
 	//Affects buffer
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	GLCall(glGenBuffers(1, &VBO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 	
 	
 	//To draw the points
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	GLCall(glGenBuffers(1, &EBO));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-	glEnableVertexAttribArray(0);
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0));
+	GLCall(glEnableVertexAttribArray(0));
 
 	std::string vertexShader =  Shader::readShader("default_vertex.glsl");
 	std::string fragmentShader = Shader::readShader("default_fragment.glsl");
@@ -105,6 +118,10 @@ bool ModuleOpenGL::Init()
 		return false;
 	}
 
+	int nrAttributes;
+	GLCall(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes));
+	LOG("Maximum nr of vertex attributes supported: %u", nrAttributes);
+
 	
 	return true;
 }
@@ -118,10 +135,10 @@ update_status ModuleOpenGL::PreUpdate()
 // Called every draw update
 update_status ModuleOpenGL::Update()
 {
-	glUseProgram(program);
-	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+	GLCall(glUseProgram(program));
+	GLCall(glBindVertexArray(VAO));
+	GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+	GLCall(glBindVertexArray(0)); // Unbind VAO
 	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
 	
 	return UPDATE_CONTINUE;
