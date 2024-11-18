@@ -1,15 +1,11 @@
 #include "Camera.h"
 #include "Application.h"
 #include "ModuleWindow.h"
-#include "./math-library/Geometry/Frustum.h"
-#include "./math-library/Math/MathConstants.h"
-#include "./math-library/Math/float4x4.h"
-#include "./math-library/Math/MathAll.h"
 
 
 Frustum Camera::Init() {
 
-	float aspect = *(App->GetWindow()->window_width) / *(App->GetWindow()->window_height);
+	float aspect = (float)*(App->GetWindow()->window_width) / *(App->GetWindow()->window_height);
 	
 	Frustum camera;
 	
@@ -32,8 +28,14 @@ Frustum Camera::Init() {
 
 }
 
-void Camera::LookAt(float3 position, float3 target, float3 up) {
-
-	//TODO: Do the code for LookAt function
-
+float4x4 Camera::LookAt(float3 position, float3 center, float3 up) {
+	float3 f = (center - position).Normalized(); // Forward
+	float3 s = f.Cross(up).Normalized();    // Side
+	float3 u = s.Cross(f);                  // Up
+	return float4x4(
+		s.x, s.y, s.z, -s.Dot(position),
+		u.x, u.y, u.z, -u.Dot(position),
+		-f.x, -f.y, -f.z, f.Dot(position),
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
 }

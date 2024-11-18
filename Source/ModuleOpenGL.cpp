@@ -18,8 +18,11 @@
 	x;\
 	ASSERT(GLLogCall(#x, __FILE__, __LINE__))//Macro to not have to call the two function GLLogCall and GLLogCall every time
 
+Camera newCamera;
 
-float test = -3.0f;
+float3 position = float3(0.0f, 0.0f, 1.5f);
+float3 target = float3(0.0f, 0.0f, 0.0f);
+float3 up = float3(0.0f, 1.0f, 0.0f);
 
 static void GLClearError() {
 	while (glGetError() != GL_NO_ERROR);
@@ -79,7 +82,6 @@ bool ModuleOpenGL::Init()
 	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Change the color and depth with the ones specified
 	
-	Camera newCamera;
 	mainCamera = newCamera.Init();
 
 	//Drawing Triangle
@@ -137,8 +139,9 @@ update_status ModuleOpenGL::Update()
 	GLCall(glUseProgram(program));
 	
 	float4x4 model = float4x4::identity;
-	float4x4 view = float4x4::Translate(0.0f, 0.0f, test);
+	float4x4 view = newCamera.LookAt(position, target , up);
 	float4x4 proj = mainCamera.ProjectionMatrix();
+	
 		
 	glUniformMatrix4fv(0, 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(1, 1, GL_TRUE, &view[0][0]);
@@ -148,7 +151,6 @@ update_status ModuleOpenGL::Update()
 	GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 	GLCall(glBindVertexArray(0)); // Unbind VAO
 	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
-	test = test + 0.01f;
 	return UPDATE_CONTINUE;
 }
 
