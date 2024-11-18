@@ -6,12 +6,20 @@
 #include "SDL.h"
 #include <GL/glew.h>
 #include "Shader.h"
+#include "Camera.h"
+#include "./math-library/Geometry/Frustum.h"
+#include "./math-library/Math/MathConstants.h"
+#include "./math-library/Math/float4x4.h"
+#include "./math-library/Math/MathAll.h"
 
 
 #define ASSERT(x) if (!(x)) __debugbreak(); //Macro that validates contidion
 #define GLCall(x) GLClearError();\
 	x;\
 	ASSERT(GLLogCall(#x, __FILE__, __LINE__))//Macro to not have to call the two function GLLogCall and GLLogCall every time
+
+
+float test = -3.0f;
 
 static void GLClearError() {
 	while (glGetError() != GL_NO_ERROR);
@@ -71,20 +79,17 @@ bool ModuleOpenGL::Init()
 	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Change the color and depth with the ones specified
 	
-	//Drawing Square Task
-	float vertices[12] = {
-	-0.5f, 0.5f, 0.0f,
-	 0.5f, 0.5f, 0.0f,
+	Camera newCamera;
+	mainCamera = newCamera.Init();
+
+	//Drawing Triangle
+	float vertices[9] = {
 	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f,
 	};
 
-	unsigned int indices[6] = {
-		0, 1, 2,
-		1, 2, 3
-	};
-
-	unsigned int VBO, EBO;
+	unsigned int VBO;
 
 	//Affects attributs to be persistent
 	GLCall(glGenVertexArrays(1, &VAO));
@@ -94,12 +99,6 @@ bool ModuleOpenGL::Init()
 	GLCall(glGenBuffers(1, &VBO));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
-	
-	
-	//To draw the points
-	GLCall(glGenBuffers(1, &EBO));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 	
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0));
 	GLCall(glEnableVertexAttribArray(0));
@@ -136,11 +135,20 @@ update_status ModuleOpenGL::PreUpdate()
 update_status ModuleOpenGL::Update()
 {
 	GLCall(glUseProgram(program));
+	
+	float4x4 model = float4x4::identity;
+	float4x4 view = float4x4::Translate(0.0f, 0.0f, test);
+	float4x4 proj = mainCamera.ProjectionMatrix();
+		
+	glUniformMatrix4fv(0, 1, GL_TRUE, &model[0][0]);
+	glUniformMatrix4fv(1, 1, GL_TRUE, &view[0][0]);
+	glUniformMatrix4fv(2, 1, GL_TRUE, &proj[0][0]);
+
 	GLCall(glBindVertexArray(VAO));
-	GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+	GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 	GLCall(glBindVertexArray(0)); // Unbind VAO
 	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
-	
+	test = test + 0.01f;
 	return UPDATE_CONTINUE;
 }
 

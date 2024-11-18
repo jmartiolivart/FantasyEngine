@@ -1,6 +1,8 @@
 #pragma once
 #include "Module.h"
 #include "Globals.h"
+#include "./math-library/Geometry/Frustum.h"
+
 
 
 struct SDL_Texture;
@@ -24,4 +26,5 @@ private:
 	void* context = nullptr;
 	unsigned int VAO = 0;
 	int program = 0;
+	Frustum mainCamera;
 };
