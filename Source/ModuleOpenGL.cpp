@@ -20,9 +20,12 @@
 
 Camera newCamera;
 
-float3 position = float3(0.0f, 0.0f, 1.5f);
-float3 target = float3(0.0f, 0.0f, 0.0f);
+float3 position = float3(0.0f, 1.0f, 5.0f);
+float3 target = float3(0.0f, -1.0f, 0.0f);
 float3 up = float3(0.0f, 1.0f, 0.0f);
+float4x4 model;
+float4x4 view;
+float4x4 proj;
 
 static void GLClearError() {
 	while (glGetError() != GL_NO_ERROR);
@@ -77,12 +80,9 @@ bool ModuleOpenGL::Init()
 	App->GetWindow()->window_width = new int;
 	App->GetWindow()->window_height = new int;
 
-	SDL_GetWindowSize(App->GetWindow()->window, App->GetWindow()->window_width, App->GetWindow()->window_height); //Get window size
-	glViewport(0, 0, *(App->GetWindow()->window_width), *(App->GetWindow()->window_height)); //What part of the window will render
-	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Change the color and depth with the ones specified
 	
-	mainCamera = newCamera.Init();
+	mainCamera = Camera();
+	mainCamera.Init();
 
 	//Drawing Triangle
 	float vertices[9] = {
@@ -129,18 +129,23 @@ bool ModuleOpenGL::Init()
 
 update_status ModuleOpenGL::PreUpdate()
 {
-	
+	SDL_GetWindowSize(App->GetWindow()->window, App->GetWindow()->window_width, App->GetWindow()->window_height);
+	glViewport(0, 0, *(App->GetWindow()->window_width), *(App->GetWindow()->window_height)); //What part of the window will render
+	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Change the color and depth with the ones specified
+
 	return UPDATE_CONTINUE;
 }
 
 // Called every draw update
 update_status ModuleOpenGL::Update()
 {
+
 	GLCall(glUseProgram(program));
 	
-	float4x4 model = float4x4::identity;
-	float4x4 view = newCamera.LookAt(position, target , up);
-	float4x4 proj = mainCamera.ProjectionMatrix();
+	model = float4x4::identity;
+	view = mainCamera.LookAt(position, target, up);
+	proj = mainCamera.frustum.ProjectionMatrix();
 	
 		
 	glUniformMatrix4fv(0, 1, GL_TRUE, &model[0][0]);
@@ -150,12 +155,12 @@ update_status ModuleOpenGL::Update()
 	GLCall(glBindVertexArray(VAO));
 	GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 	GLCall(glBindVertexArray(0)); // Unbind VAO
-	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
 	return UPDATE_CONTINUE;
 }
 
 update_status ModuleOpenGL::PostUpdate()
 {
+	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
 	return UPDATE_CONTINUE;
 }
 
@@ -173,3 +178,16 @@ bool ModuleOpenGL::CleanUp()
 void ModuleOpenGL::WindowResized(unsigned width, unsigned height)
 {
 }
+
+const float4x4& ModuleOpenGL::GetModelMatrix() {
+	return model;
+}
+
+const float4x4& ModuleOpenGL::GetViewMatrix() {
+	return view;
+}
+
+const float4x4& ModuleOpenGL::GetProjectionMatrix() {
+	return proj;
+}
+

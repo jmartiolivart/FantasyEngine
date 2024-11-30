@@ -1,30 +1,30 @@
 #include "Camera.h"
 #include "Application.h"
 #include "ModuleWindow.h"
+#include "./math-library/Geometry/Frustum.h"
 
 
 Frustum Camera::Init() {
 
+
 	float aspect = (float)*(App->GetWindow()->window_width) / *(App->GetWindow()->window_height);
-	
-	Frustum camera;
-	
-	camera.type = FrustumType::PerspectiveFrustum;
+
+	frustum.type = FrustumType::PerspectiveFrustum;
+
 	
 	//Direction
-	camera.pos = float3::zero;
-	camera.front = -float3::unitZ;
-	camera.up = float3::unitY;
+	frustum.pos = float3::zero;
+	frustum.front = -float3::unitZ;
+	frustum.up = float3::unitY;
 
 	//6 planes
-	camera.nearPlaneDistance = 0.1f;
-	camera.farPlaneDistance = 100.0f;
-	camera.verticalFov = math::pi / 4.0f;
-	camera.horizontalFov = 2.f * atanf(tanf(camera.verticalFov * 0.5f) * aspect);
+	frustum.nearPlaneDistance = 0.1f;
+	frustum.farPlaneDistance = 100.0f;
+	frustum.verticalFov = math::pi / 4.0f;
+	frustum.horizontalFov = 2.f * atanf(tanf(frustum.verticalFov * 0.5f) * aspect);
 
-	float4x4 proj = camera.ProjectionMatrix();
-
-	return camera;
+	float4x4 proj = frustum.ProjectionMatrix();
+	return frustum;
 
 }
 

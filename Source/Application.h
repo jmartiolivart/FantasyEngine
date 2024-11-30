@@ -3,12 +3,15 @@
 #include<list>
 #include "Globals.h"
 #include "Module.h"
+#include "ModuleWindow.h"
 
 class ModuleOpenGL;
 class ModuleWindow;
 class ModuleTextures;
 class ModuleInput;
 class ModuleRenderExercise;
+class ModuleEditor;
+class ModuleDebugDraw;
 
 class Application
 {
@@ -25,11 +28,16 @@ public:
     ModuleWindow* GetWindow() { return window; }
     ModuleInput*  GetInput() { return input; }
 
-private:
-
+    //Not sure about this being public
     ModuleOpenGL* render = nullptr;
     ModuleWindow* window = nullptr;
+
+private:
+
+    
     ModuleInput* input = nullptr;
+    ModuleEditor* editor = nullptr;
+    ModuleDebugDraw* debug = nullptr;
 
     std::list<Module*> modules;
 

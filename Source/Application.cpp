@@ -3,6 +3,9 @@
 #include "ModuleWindow.h"
 #include "ModuleOpenGL.h"
 #include "ModuleInput.h"
+#include "ModuleEditor.h"
+#include "ModuleDebugDraw.h"
+
 
 using namespace std;
 
@@ -12,6 +15,8 @@ Application::Application()
 	modules.push_back(window = new ModuleWindow());
 	modules.push_back(render = new ModuleOpenGL());
 	modules.push_back(input = new ModuleInput());
+	modules.push_back(editor = new ModuleEditor());
+	modules.push_back(debug = new ModuleDebugDraw());
 }
 
 Application::~Application()

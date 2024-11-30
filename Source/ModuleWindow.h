@@ -21,6 +21,9 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+	int getWindowWidth() { return *window_width; };
+	int getWindowHeight() { return *window_height; };
+
 public:
 	//The window we'll be rendering to
 	SDL_Window* window = NULL;
