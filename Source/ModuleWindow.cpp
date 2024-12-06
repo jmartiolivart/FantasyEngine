@@ -27,7 +27,7 @@ bool ModuleWindow::Init()
 		//Create window
 		int width = SCREEN_WIDTH;
 		int height = SCREEN_HEIGHT;
-		Uint32 flags = SDL_WINDOW_SHOWN |  SDL_WINDOW_OPENGL;
+		Uint32 flags = SDL_WINDOW_SHOWN |  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
 		if(FULLSCREEN == true)
 		{
@@ -42,6 +42,7 @@ bool ModuleWindow::Init()
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24); // we want to have a depth buffer with 24 bits
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8); // we want to have a stencil buffer with 8 bits
 
+
 		window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 
 		if(window == NULL)
@@ -52,7 +53,7 @@ bool ModuleWindow::Init()
 		else
 		{
 			//Get window surface
-			
+			SDL_GetWindowSize(window, window_width, window_height);
 			screen_surface = SDL_GetWindowSurface(window);
 		}
 	}
@@ -64,7 +65,8 @@ bool ModuleWindow::Init()
 bool ModuleWindow::CleanUp()
 {
 	LOG("Destroying SDL window and quitting all SDL systems");
-
+	delete window_width;
+	delete window_height;
 	//Destroy window
 	if(window != NULL)
 	{

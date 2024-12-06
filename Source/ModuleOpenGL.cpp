@@ -2,42 +2,12 @@
 #include "Application.h"
 #include "ModuleOpenGL.h"
 #include "ModuleWindow.h"
-#include <iostream>
 #include "SDL.h"
 #include <GL/glew.h>
 #include "Shader.h"
-#include "Camera.h"
-#include "./math-library/Geometry/Frustum.h"
-#include "./math-library/Math/MathConstants.h"
-#include "./math-library/Math/float4x4.h"
+#include "ModuleCamera.h"
 #include "./math-library/Math/MathAll.h"
 
-
-#define ASSERT(x) if (!(x)) __debugbreak(); //Macro that validates contidion
-#define GLCall(x) GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))//Macro to not have to call the two function GLLogCall and GLLogCall every time
-
-Camera newCamera;
-
-float3 position = float3(0.0f, 1.0f, 5.0f);
-float3 target = float3(0.0f, -1.0f, 0.0f);
-float3 up = float3(0.0f, 1.0f, 0.0f);
-float4x4 model;
-float4x4 view;
-float4x4 proj;
-
-static void GLClearError() {
-	while (glGetError() != GL_NO_ERROR);
-}
-
-static bool GLLogCall(const char* function, const char* file, int line) {
-	while (GLenum error = glGetError()) {
-		LOG("[OpenGL Error] (%u): %s %s:%i\n", error, file, function, line);
-		return false;
-	}
-	return true;
-}
 
 ModuleOpenGL::ModuleOpenGL()
 {
@@ -70,19 +40,19 @@ bool ModuleOpenGL::Init()
 	LOG("Vendor: %s", glGetString(GL_VENDOR));
 	LOG("Renderer: %s", glGetString(GL_RENDERER));
 	LOG("OpenGL version supported %s", glGetString(GL_VERSION));
-	LOG("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	LOG("GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	LOG("Maximum nr of vertex attributes supported: %u\n", nrAttributes);
+
 
 	glEnable(GL_DEPTH_TEST); // Enable depth test
 	glFrontFace(GL_CCW); // Front faces will be counter clockwise
 	glDisable(GL_CULL_FACE);// Disable cull backward faces
 
-	
-	App->GetWindow()->window_width = new int;
-	App->GetWindow()->window_height = new int;
 
-	
-	mainCamera = Camera();
-	mainCamera.Init();
+	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
+	glViewport(0, 0, *(App->GetWindow()->window_width), *(App->GetWindow()->window_height)); //What part of the window will render
+
 
 	//Drawing Triangle
 	float vertices[9] = {
@@ -91,26 +61,21 @@ bool ModuleOpenGL::Init()
 	 0.0f,  0.5f, 0.0f,
 	};
 
-	unsigned int VBO;
-
 	//Affects attributs to be persistent
-	GLCall(glGenVertexArrays(1, &VAO));
-	GLCall(glBindVertexArray(VAO));
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
 
-	//Affects buffer
-	GLCall(glGenBuffers(1, &VBO));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 	
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0));
-	GLCall(glEnableVertexAttribArray(0));
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+	glEnableVertexAttribArray(0);
+	
 
 	std::string vertexShader =  Shader::readShader("default_vertex.glsl");
 	std::string fragmentShader = Shader::readShader("default_fragment.glsl");
-	if (vertexShader == "ERROR_READ" || fragmentShader == "ERROR_READ") {
-		LOG("Error reading shaders");
-		return false;
-	}
 
 	program = Shader::CreateShader(vertexShader, fragmentShader);
 
@@ -118,20 +83,12 @@ bool ModuleOpenGL::Init()
 		LOG("Error linking shaders");
 		return false;
 	}
-
-	int nrAttributes;
-	GLCall(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes));
-	LOG("Maximum nr of vertex attributes supported: %u", nrAttributes);
-
-	
 	return true;
 }
 
 update_status ModuleOpenGL::PreUpdate()
 {
-	SDL_GetWindowSize(App->GetWindow()->window, App->GetWindow()->window_width, App->GetWindow()->window_height);
-	glViewport(0, 0, *(App->GetWindow()->window_width), *(App->GetWindow()->window_height)); //What part of the window will render
-	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
+	//SDL_GetWindowSize(App->GetWindow()->window, App->GetWindow()->window_width, App->GetWindow()->window_height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Change the color and depth with the ones specified
 
 	return UPDATE_CONTINUE;
@@ -140,21 +97,21 @@ update_status ModuleOpenGL::PreUpdate()
 // Called every draw update
 update_status ModuleOpenGL::Update()
 {
+	glUseProgram(program);
 
-	GLCall(glUseProgram(program));
-	
 	model = float4x4::identity;
-	view = mainCamera.LookAt(position, target, up);
-	proj = mainCamera.frustum.ProjectionMatrix();
+	view = App->camera->LookAt();
+	proj = App->camera->GetProjectionMatrix();
 	
 		
 	glUniformMatrix4fv(0, 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(1, 1, GL_TRUE, &view[0][0]);
 	glUniformMatrix4fv(2, 1, GL_TRUE, &proj[0][0]);
 
-	GLCall(glBindVertexArray(VAO));
-	GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
-	GLCall(glBindVertexArray(0)); // Unbind VAO
+
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(0); // Unbind VAO
 	return UPDATE_CONTINUE;
 }
 
@@ -168,7 +125,9 @@ update_status ModuleOpenGL::PostUpdate()
 bool ModuleOpenGL::CleanUp()
 {
 	LOG("Destroying renderer");
-
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteProgram(program);
 	//Destroy window
 	SDL_GL_DeleteContext(context);
 
@@ -177,6 +136,9 @@ bool ModuleOpenGL::CleanUp()
 
 void ModuleOpenGL::WindowResized(unsigned width, unsigned height)
 {
+	glViewport(0, 0, width, height);
+	float newAspectRatio = (float)width / height;
+	App->camera->SetAspectRatio(newAspectRatio); 
 }
 
 const float4x4& ModuleOpenGL::GetModelMatrix() {

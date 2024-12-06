@@ -12,6 +12,7 @@ class ModuleInput;
 class ModuleRenderExercise;
 class ModuleEditor;
 class ModuleDebugDraw;
+class ModuleCamera;
 
 class Application
 {
@@ -31,6 +32,7 @@ public:
     //Not sure about this being public
     ModuleOpenGL* render = nullptr;
     ModuleWindow* window = nullptr;
+    ModuleCamera* camera = nullptr;
 
 private:
 

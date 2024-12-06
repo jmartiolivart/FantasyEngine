@@ -613,8 +613,8 @@ bool ModuleDebugDraw::CleanUp()
 update_status ModuleDebugDraw::PreUpdate()
 {
     dd::axisTriad(float4x4::identity, 0.1f, 1.0f);
-    //dd::xzSquareGrid(-10, 10, 0.0f, 1.0f, dd::colors::Gray);
-    dd::xzSquareGrid(-20, 20, 0.0f, 1.0f, dd::colors::Gray);
+    dd::xzSquareGrid(-10, 10, 0.0f, 1.0f, dd::colors::Gray);
+    //dd::xzSquareGrid(-20, 20, 0.0f, 1.0f, dd::colors::Gray);
     return UPDATE_CONTINUE;
 
 }
@@ -624,6 +624,7 @@ update_status ModuleDebugDraw::Update()
     Draw(App->render->GetViewMatrix(), App->render->GetProjectionMatrix(), App->window->getWindowWidth(), App->window->getWindowHeight());
     return UPDATE_CONTINUE;
 }
+
 
 void ModuleDebugDraw::Draw(const float4x4& view, const float4x4& proj, unsigned width, unsigned height)
 {

@@ -43,6 +43,7 @@ update_status ModuleInput::Update()
             case SDL_WINDOWEVENT:
                 if (sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED || sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                     App->GetOpenGL()->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
+                    // Update the FOV
                 break;
 
         }

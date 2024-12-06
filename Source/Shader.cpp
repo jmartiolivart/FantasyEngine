@@ -3,13 +3,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "Globals.h"
 
 namespace Shader {
 
     unsigned int CompileShader(unsigned int type, const std::string& source) {
 
 		unsigned int id = glCreateShader(type);
-		const char* src = source.c_str();
+		const char* src = source.data();
 		glShaderSource(id, 1, &src, nullptr);
 		glCompileShader(id);
 
@@ -21,8 +22,8 @@ namespace Shader {
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 			char* message = new char[length];
 			glGetShaderInfoLog(id, length, &length, message);
-			std::cout << "Failed to compile shader!" << std::endl;
-			std::cout << message << std::endl;
+			LOG("Failed to compile shader!");
+			LOG(message);
 			delete[] message;
 		}
 
@@ -41,7 +42,7 @@ namespace Shader {
 
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
-
+		
 		return program;
     }
 
@@ -55,7 +56,7 @@ namespace Shader {
 			return buffer.str();
 		}
 		else {
-			return "ERROR_READ";
+			throw std::runtime_error("Error reading shader file: " + std::string(shader_path));
 		}
 	}
 
