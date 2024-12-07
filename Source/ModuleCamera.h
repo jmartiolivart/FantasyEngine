@@ -26,20 +26,12 @@ public:
 	inline Frustum* GetCamera() { return mainCamera; };
 
 	float3 GetPosition() const;
-	float3 GetTarget() const; 
 	float3 GetUp() const;     
 
 	void SetPosition(const float3& position);
-	void SetTarget(const float3& target); 
 
 private:
 	float nearPlane = 0.1f;
 	float farPlane = 100.0f;
 	Frustum* mainCamera = nullptr;
-
-	float3 position;
-	float3 target;
-	float3 up;
-
-
 };

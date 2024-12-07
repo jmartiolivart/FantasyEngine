@@ -29,13 +29,14 @@ bool ModuleOpenGL::Init()
 		return false;
 	}
 	
+	//Retrive functions avaliable from the OpenGL
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
 
-	//Some info about the GPU thanks to glew
+	//Some info about the GPU usign glew
 	LOG("Using Glew %s", glewGetString(GLEW_VERSION));
 	LOG("Vendor: %s", glGetString(GL_VENDOR));
 	LOG("Renderer: %s", glGetString(GL_RENDERER));
@@ -46,11 +47,12 @@ bool ModuleOpenGL::Init()
 
 
 	glEnable(GL_DEPTH_TEST); // Enable depth test
-	glFrontFace(GL_CCW); // Front faces will be counter clockwise
-	glDisable(GL_CULL_FACE);// Disable cull backward faces
+	glFrontFace(GL_CCW);	 // Front faces will be counter clockwise
+	glDisable(GL_CULL_FACE); // Disable cull backward faces
 
 
-	glClearColor(0.3f, 0.3f, 0.5f, 1.0f); //Define the color 
+
+	glClearColor(0.7f, 0.7f, 0.7f, 1.0f); //Define the color of background 
 	glViewport(0, 0, *(App->GetWindow()->window_width), *(App->GetWindow()->window_height)); //What part of the window will render
 
 
@@ -61,28 +63,32 @@ bool ModuleOpenGL::Init()
 	 0.0f,  0.5f, 0.0f,
 	};
 
-	//Affects attributs to be persistent
+	// Creation VAO and activation
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	
 	glBindVertexArray(VAO);
+
+	//Creation and activation VBO. Also configure the VBO with the vertices and his atributs.
+	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 	glEnableVertexAttribArray(0);
-	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	//Shaders read and apply
 	std::string vertexShader =  Shader::readShader("default_vertex.glsl");
 	std::string fragmentShader = Shader::readShader("default_fragment.glsl");
-
 	program = Shader::CreateShader(vertexShader, fragmentShader);
 
 	if (program == 0) {
 		LOG("Error linking shaders");
 		return false;
 	}
+
+	float model[4][4];
+	
+
+
 	return true;
 }
 
@@ -90,6 +96,12 @@ update_status ModuleOpenGL::PreUpdate()
 {
 	//SDL_GetWindowSize(App->GetWindow()->window, App->GetWindow()->window_width, App->GetWindow()->window_height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Change the color and depth with the ones specified
+	
+	//After clear we need to tell OpenGL again to use the VAO
+	glBindVertexArray(VAO);
+	
+	//Tell OpenGL to use this program to draw
+	glUseProgram(program);
 
 	return UPDATE_CONTINUE;
 }
@@ -97,21 +109,30 @@ update_status ModuleOpenGL::PreUpdate()
 // Called every draw update
 update_status ModuleOpenGL::Update()
 {
-	glUseProgram(program);
 
-	model = float4x4::identity;
+	model =	float4x4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, -5.0f,  // Traslació en Z
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+	
+
+	if (a == true) {
+		App->camera->SetPosition(App->camera->GetPosition() + float3(0.0f, -1.0f, 0.0f));
+		a = false;
+	}
+	
 	view = App->camera->LookAt();
 	proj = App->camera->GetProjectionMatrix();
 	
-		
+
 	glUniformMatrix4fv(0, 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(1, 1, GL_TRUE, &view[0][0]);
 	glUniformMatrix4fv(2, 1, GL_TRUE, &proj[0][0]);
 
-
-	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0); // Unbind VAO
+
 	return UPDATE_CONTINUE;
 }
 
@@ -125,6 +146,7 @@ update_status ModuleOpenGL::PostUpdate()
 bool ModuleOpenGL::CleanUp()
 {
 	LOG("Destroying renderer");
+	glBindVertexArray(0); // Unbind VAO
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteProgram(program);
@@ -151,5 +173,10 @@ const float4x4& ModuleOpenGL::GetViewMatrix() {
 
 const float4x4& ModuleOpenGL::GetProjectionMatrix() {
 	return proj;
+}
+
+
+void translateMatrix(float matrix[4][4], float tx, float ty, float tz) {
+	
 }
 

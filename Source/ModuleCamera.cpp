@@ -20,37 +20,36 @@ bool ModuleCamera::Init() {
 
 	mainCamera->type = FrustumType::PerspectiveFrustum;
 	
-	//Direction
-	mainCamera->pos = float3::zero;
-	mainCamera->front = float3(0.0f, -1.0f, 0.0f);
-	mainCamera->up = float3(1.0f, 0.0f, 0.0f);
+	mainCamera->pos = float3::zero;					// Position = cordinates origin
+	mainCamera->front = float3(0.0f, 0.0f, -1.0f);  // Direction camera = -Z
+	mainCamera->up = float3(0.0f, 1.0f, 0.0f);		// Camera is "standing up"
 
-	//6 planes
+	//Configuration of the 6 planes of the frustum
 	mainCamera->nearPlaneDistance = nearPlane;
 	mainCamera->farPlaneDistance = farPlane;
 	mainCamera->verticalFov = math::pi / 4.0f;
 	mainCamera->horizontalFov = SetHoritzontalFov(mainCamera->verticalFov);
 
 
-	position = float3::zero;
-	target = float3::zero;
-	up = float3::unitY;
 
 	return true;
 
 }
 
 float4x4 ModuleCamera::LookAt() {
-	float3 f = (target - position).Normalized(); // Forward
-	float3 s = f.Cross(up).Normalized();        // Side
-	float3 u = s.Cross(f);                      // Up
+	float3 z = (mainCamera->pos - (mainCamera->pos + mainCamera->front)).Normalized(); // z = normalize(eye - target)
+	float3 x = mainCamera->up.Cross(z).Normalized(); // x = normalize(cross(up, z))
+	float3 y = z.Cross(x); // y = cross(z, x)
+
 	return float4x4(
-		s.x, s.y, s.z, -s.Dot(position),
-		u.x, u.y, u.z, -u.Dot(position),
-		-f.x, -f.y, -f.z, f.Dot(position),
+		x.x, x.y, x.z, -x.Dot(mainCamera->pos), 
+		y.x, y.y, y.z,  y.Dot(mainCamera->pos),
+		z.x, z.y, z.z, -z.Dot(mainCamera->pos),
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
 }
+
+
 
 float ModuleCamera::SetHoritzontalFov(float verticalFov) {
 	// Change the horizontal FOV to meet the new aspect ratio.
@@ -81,32 +80,27 @@ float3 ModuleCamera::Orientation() const {
 
 float4x4 ModuleCamera::GetProjectionMatrix() {
 	float4x4 projection = mainCamera->ProjectionMatrix();
-	return projection.Transposed();
+	return projection;
 }
 
 float4x4 ModuleCamera::GetViewMatrix() {
+	
 	float4x4 view = mainCamera->ViewMatrix();
 	return view.Transposed();
 }
 
 float3 ModuleCamera::GetPosition() const {
-	return position;
+	return mainCamera->pos;
 }
 
-float3 ModuleCamera::GetTarget() const { 
-	return target;
-}
 
 float3 ModuleCamera::GetUp() const {  
-	return up;
+	return mainCamera->up;
 }
 
 void ModuleCamera::SetPosition(const float3& position)
 {
-	this->position = position;
+	mainCamera->pos = position;
 }
 
-void ModuleCamera::SetTarget(const float3& target)
-{
-	this->target = target;
-}
+

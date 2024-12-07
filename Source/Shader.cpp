@@ -31,6 +31,7 @@ namespace Shader {
     }
 
     unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
+		
 		unsigned int vertex = CompileShader(GL_VERTEX_SHADER, vertexShader);
 		unsigned int fragment = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
