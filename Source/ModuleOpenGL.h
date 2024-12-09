@@ -37,8 +37,6 @@ private:
 	float4x4 view;
 	float4x4 proj;
 
-	//Variable test
-	bool a = true;
 };
 
 #endif /* _MODULE_OPENGL_H_ */

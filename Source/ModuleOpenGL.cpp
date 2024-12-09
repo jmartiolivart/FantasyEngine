@@ -113,16 +113,10 @@ update_status ModuleOpenGL::Update()
 	model =	float4x4(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, -5.0f,  // Traslació en Z
+		0.0f, 0.0f, 1.0f, -5.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
-	
 
-	if (a == true) {
-		App->camera->SetPosition(App->camera->GetPosition() + float3(0.0f, -1.0f, 0.0f));
-		a = false;
-	}
-	
 	view = App->camera->LookAt();
 	proj = App->camera->GetProjectionMatrix();
 	

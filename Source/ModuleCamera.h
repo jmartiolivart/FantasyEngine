@@ -29,9 +29,31 @@ public:
 	float3 GetUp() const;     
 
 	void SetPosition(const float3& position);
+	
+
+	/*----KEY INPUTS----*/
+	void GoUP();
+	void GoDOWN();
+	void GoSTRAIGHT();
+	void GoBACKWARDS();
+	void GoLEFT();
+	void GoRIGHT();
+	void RotateUpwards();
+	void RotateBackwards();
+	void RotateLeft();
+	void RotateRight();
+	
+	/*----MOUSE INPUTS----*/
+	void DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
+	void RotateCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
+	void Zoom(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
+
+	float cameraSpeed = 0.01f;
 
 private:
 	float nearPlane = 0.1f;
 	float farPlane = 100.0f;
 	Frustum* mainCamera = nullptr;
+
+	
 };

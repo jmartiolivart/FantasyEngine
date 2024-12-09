@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "ModuleInput.h"
 #include "ModuleOpenGL.h"
+#include "ModuleCamera.h"
 #include "SDL/include/SDL.h"
 #include "imgui-docking/backends/imgui_impl_sdl2.h"
 
@@ -45,7 +46,92 @@ update_status ModuleInput::Update()
                     App->GetOpenGL()->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
                     // Update the FOV
                 break;
+            case SDL_KEYDOWN: // Key is press
 
+                if (sdlEvent.key.keysym.sym == SDLK_RSHIFT || sdlEvent.key.keysym.sym == SDLK_LSHIFT) {
+                    if (!augmentedSpeed) {
+                        App->camera->cameraSpeed = App->camera->cameraSpeed * 3.0f;
+                        augmentedSpeed = true; 
+                    }
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_q) {
+                    App->camera->GoUP();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_e) {
+                    App->camera->GoDOWN();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_w) {
+                    App->camera->GoSTRAIGHT();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_s) {
+                    App->camera->GoBACKWARDS();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_a) {
+                    App->camera->GoLEFT();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_d) {
+                    App->camera->GoRIGHT();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_UP) {
+                    App->camera->RotateUpwards();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_DOWN) {
+                    App->camera->RotateBackwards();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_LEFT) {
+                    App->camera->RotateLeft();
+                }
+                if (sdlEvent.key.keysym.sym == SDLK_RIGHT) {
+                    App->camera->RotateRight();
+                }
+                break;
+            case SDL_KEYUP:
+                if (sdlEvent.key.keysym.sym == SDLK_RSHIFT || sdlEvent.key.keysym.sym == SDLK_LSHIFT) {
+                    if (augmentedSpeed) {
+                        App->camera->cameraSpeed = App->camera->cameraSpeed / 3.0f;
+                        augmentedSpeed = false;
+                    }
+                }
+            case SDL_MOUSEBUTTONDOWN:
+                
+                prevMouseX = sdlEvent.button.x;
+                prevMouseY = sdlEvent.button.y;
+                
+                if (sdlEvent.button.button == SDL_BUTTON_MIDDLE) {
+                    middleMouseDown = true;
+                }
+                if (sdlEvent.button.button == SDL_BUTTON_RIGHT) {
+                    rightMouseDown = true;
+                }
+                break;
+            
+            case SDL_MOUSEBUTTONUP:
+                if (sdlEvent.button.button == SDL_BUTTON_MIDDLE) {
+                    middleMouseDown = false;
+                }
+                if (sdlEvent.button.button == SDL_BUTTON_RIGHT) {
+                    rightMouseDown = false;
+                }
+
+                break;
+            case SDL_MOUSEMOTION:
+
+                SDL_GetMouseState(&currentMouseX, &currentMouseY);
+
+                if (middleMouseDown) {
+                    App->camera->DragCamera(prevMouseX, prevMouseY, currentMouseX, currentMouseY);
+                    
+                }
+                if(rightMouseDown && (SDL_GetModState() & KMOD_LALT || SDL_GetModState() & KMOD_RALT)){
+                    App->camera->Zoom(prevMouseX, prevMouseY, currentMouseX, currentMouseY);
+
+                } else if (rightMouseDown) {
+                    App->camera->RotateCamera(prevMouseX, prevMouseY, currentMouseX, currentMouseY);
+                }
+                prevMouseX = currentMouseX;
+                prevMouseY = currentMouseY;
+
+                break;
         }
     }
 
