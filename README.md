@@ -1,0 +1,4 @@
+- Short description of the engine and link to the github.com page of the project
+- How to use the engine, detailing the controls and any specific action
+- Additional functionality in the engine outside of the assignment requirements
+- Additional comments for the teachers to understand some parts of the engine
