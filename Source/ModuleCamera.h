@@ -55,5 +55,8 @@ private:
 	float farPlane = 100.0f;
 	Frustum* mainCamera = nullptr;
 
+	float3x3 rotationMatrix;
+
+
 	
 };

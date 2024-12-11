@@ -77,3 +77,25 @@ bool ModuleWindow::CleanUp()
 	SDL_Quit();
 	return true;
 }
+
+void ModuleWindow::SetFullscreen(bool activeFullscreen)
+{
+	if (activeFullscreen) {
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
+	else {
+		SDL_SetWindowFullscreen(window, 0);
+	}
+
+}
+
+void ModuleWindow::setResizable(bool activeResizable)
+{
+	if (activeResizable) {
+		SDL_SetWindowResizable(window, SDL_TRUE);
+	}
+	else {
+		SDL_SetWindowResizable(window, SDL_FALSE);
+	}
+
+}

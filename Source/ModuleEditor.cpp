@@ -75,6 +75,56 @@ update_status ModuleEditor::PreUpdate() {
         sprintf_s(title, 25, "Milliseconds %0.1f", ms);
         ImGui::PlotHistogram("###milliseconds", &ms_log[0], ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
     }
+    
+    if (ImGui::MenuItem("About")) {
+        showAbout = !showAbout;
+    }
+
+    if (showAbout) {
+
+        //Info
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "  Title:" TITLE);
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "  Description: This engine is ");
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), u8"  Creator: Joan Martí Olivart\n");
+
+        //Libraries (with versions) used
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "SDL ");
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "Glew 2.1.0");
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "MathGeoLib");
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "ImGui");
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "Tinygltf");
+        
+        //License
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  MIT License");
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  Copyright (c) [year] [fullname]");
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:");
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.");
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.");
+
+    }
+    
+    if (ImGui::MenuItem("Configuration")) {
+            showConfig = !showConfig;
+        }
+
+    if (showConfig) {
+        // FullScreen
+        if (ImGui::Checkbox("Editor Fullscreen", &fullscreen)) {
+            App->GetWindow()->SetFullscreen(fullscreen);
+        }
+
+        //Window resize
+        ImGui::SameLine();
+        if (ImGui::Checkbox("Rezisable", &resizable))
+            App->window->setResizable(resizable);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Restart to apply");
+    }
+    
+
+
+
+
     ImGui::End();
 
     return UPDATE_CONTINUE;

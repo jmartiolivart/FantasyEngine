@@ -21,7 +21,7 @@ bool ModuleCamera::Init() {
 
 	mainCamera->type = FrustumType::PerspectiveFrustum;
 	
-	mainCamera->pos = float3::zero;					// Position = cordinates origin
+	mainCamera->pos = float3(0.0f, 0.0f, 0.0f);	    // Position = cordinates origin
 	mainCamera->front = float3(0.0f, 0.0f, -1.0f);  // Direction camera = -Z
 	mainCamera->up = float3(0.0f, 1.0f, 0.0f);		// Camera is "standing up"
 
@@ -31,7 +31,8 @@ bool ModuleCamera::Init() {
 	mainCamera->verticalFov = math::pi / 4.0f;
 	mainCamera->horizontalFov = SetHoritzontalFov(mainCamera->verticalFov);
 
-	SetPosition(App->camera->GetPosition() + float3(0.0f, -1.0f, 0.0f));
+
+	SetPosition(GetPosition() + float3(0.0f, -1.0f, 0.0f));
 
 	return true;
 
@@ -39,9 +40,9 @@ bool ModuleCamera::Init() {
 
 
 float4x4 ModuleCamera::LookAt() {
-	float3 z = (mainCamera->pos - (mainCamera->pos + mainCamera->front)).Normalized(); // z = normalize(eye - target)
-	float3 x = mainCamera->up.Cross(z).Normalized(); // x = normalize(cross(up, z))
-	float3 y = z.Cross(x); // y = cross(z, x)
+	float3 z = (mainCamera->pos - (mainCamera->pos + mainCamera->front)).Normalized();
+	float3 x = mainCamera->up.Cross(z).Normalized();
+	float3 y = z.Cross(x);
 
 	return float4x4(
 		x.x, x.y, x.z, -x.Dot(mainCamera->pos), 
@@ -52,19 +53,19 @@ float4x4 ModuleCamera::LookAt() {
 }
 
 void ModuleCamera::GoUP() {
-	App->camera->SetPosition(GetPosition() + float3(0.0f, -cameraSpeed * 5, 0.0f));
+	App->camera->SetPosition(GetPosition() + float3(0.0f, -cameraSpeed * 5.0f, 0.0f));
 }
 
 void ModuleCamera::GoDOWN() {
-	App->camera->SetPosition(GetPosition() + float3(0.0f, cameraSpeed * 5, 0.0f));
+	App->camera->SetPosition(GetPosition() + float3(0.0f, cameraSpeed * 5.0f, 0.0f));
 }
 
 void ModuleCamera::GoSTRAIGHT() {
-	App->camera->SetPosition(GetPosition() + mainCamera->front * cameraSpeed * 5);
+	App->camera->SetPosition(GetPosition() + mainCamera->front * cameraSpeed * 5.0f);
 }
 
 void ModuleCamera::GoBACKWARDS() {
-	App->camera->SetPosition(GetPosition() + mainCamera->front * -cameraSpeed * 5);
+	App->camera->SetPosition(GetPosition() + mainCamera->front * -cameraSpeed * 5.0f);
 }
 
 void ModuleCamera::GoLEFT() {
@@ -72,78 +73,33 @@ void ModuleCamera::GoLEFT() {
 	// Calculate the right vector
 	float3 right = mainCamera->up.Cross(mainCamera->front).Normalized();
 	// Move along the direction
-	App->camera->SetPosition(GetPosition() + right * cameraSpeed * 5);
+	App->camera->SetPosition(GetPosition() + right * cameraSpeed * 5.0f);
 }
 
 void ModuleCamera::GoRIGHT() {
 	// Calculate the right vector
 	float3 right = mainCamera->up.Cross(mainCamera->front).Normalized();
 	// Move along the direction
-	App->camera->SetPosition(GetPosition() - right * cameraSpeed * 5);
+	App->camera->SetPosition(GetPosition() - right * cameraSpeed * 5.0f);
 }
 
 void ModuleCamera::RotateUpwards() {
 	
 	//Pitch angle
-	const float pitchAngle = -0.01f;
+	const float pitchAngle = 0.01f;
 
-	// Calculate "right" vector
-	float3 right = mainCamera->front.Cross(mainCamera->up).Normalized();
-
-	// Create the rotation matrix
-	float cosTheta = cos(pitchAngle);
-	float sinTheta = sin(pitchAngle);
-	float3x3 rotationMatrix = {
-		{1, 0, 0},
-		{0, cosTheta, -sinTheta},
-		{0, sinTheta, cosTheta}
-	};
-
-	// Calculate the new front vector after rotation
-	float3 newFront = (rotationMatrix * mainCamera->front).Normalized();
-
-	// Calculate the angle between the new front vector and the up vector
-	float angle = acos(newFront.Dot(mainCamera->up));
-
-	// Limit the angle to be within a certain range (e.g., between 10 degrees and 170 degrees)
-	if (angle > math::DegToRad(10.0f) && angle < math::DegToRad(170.0f)) {
-		// Apply rotation matrix
-		mainCamera->front = newFront;
-		mainCamera->up = (rotationMatrix * mainCamera->up).Normalized();
-	} // Only apply rotation if within limits
+	Quat rotationQuat = Quat::RotateAxisAngle(mainCamera->WorldRight().Normalized(), pitchAngle);
+	mainCamera->Transform(rotationQuat);
 
 }
 
 void ModuleCamera::RotateBackwards(){
 
 	//Pitch angle
-	const float pitchAngle = 0.01f;
+	const float pitchAngle = -0.01f;
 
-	// Calculate "right" vector
-	float3 right = mainCamera->front.Cross(mainCamera->up).Normalized();
-
-	// Create the rotation matrix using pitch angle
-	float cosTheta = cos(pitchAngle);
-	float sinTheta = sin(pitchAngle);
-
-	float3x3 rotationMatrix = {
-		{1, 0, 0},
-		{0, cosTheta, -sinTheta},
-		{0, sinTheta, cosTheta}
-	};
-
-	// Calculate the new front vector after rotation
-	float3 newFront = (rotationMatrix * mainCamera->front).Normalized();
-
-	// Calculate the angle between the new front vector and the up vector
-	float angle = acos(newFront.Dot(mainCamera->up));
-
-	// Limit the angle to be within a certain range (e.g., between 10 degrees and 170 degrees)
-	if (angle > math::DegToRad(10.0f) && angle < math::DegToRad(170.0f)) {
-		// Apply rotation matrix
-		mainCamera->front = newFront;
-		mainCamera->up = (rotationMatrix * mainCamera->up).Normalized();
-	} // Only apply rotation if within limits
+	Quat rotationQuat = Quat::RotateAxisAngle(mainCamera->WorldRight().Normalized(), pitchAngle);
+	mainCamera->Transform(rotationQuat);
 
 }
 
@@ -257,12 +213,10 @@ void ModuleCamera::SetPlaneDistances(float nearPlane, float farPlane) {
 }
 
 float3 ModuleCamera::Position() const {
-	//Returns de camera position
 	return mainCamera->pos;
 }
 
 float3 ModuleCamera::Orientation() const {
-	//Returns de camera orientation
 	return mainCamera->front;
 }
 

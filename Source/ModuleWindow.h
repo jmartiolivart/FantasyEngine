@@ -23,6 +23,9 @@ public:
 
 	int getWindowWidth() { return *window_width; };
 	int getWindowHeight() { return *window_height; };
+	
+	void SetFullscreen (bool active);
+	void setResizable(bool activeResizable);
 
 public:
 	//The window we'll be rendering to

@@ -85,10 +85,6 @@ bool ModuleOpenGL::Init()
 		return false;
 	}
 
-	float model[4][4];
-	
-
-
 	return true;
 }
 
@@ -110,13 +106,7 @@ update_status ModuleOpenGL::PreUpdate()
 update_status ModuleOpenGL::Update()
 {
 
-	model =	float4x4(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, -5.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	);
-
+	model =	float4x4::identity;
 	view = App->camera->LookAt();
 	proj = App->camera->GetProjectionMatrix();
 	

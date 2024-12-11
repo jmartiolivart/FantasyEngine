@@ -23,4 +23,9 @@ private:
 	std::vector<float> ms_log;
 	bool showLogs = false;
 	bool showGraphics = false;
+	bool showAbout = false;
+	bool fullscreen = false;
+	bool resizable = false;
+	bool showConfig = false;
+	
 };
