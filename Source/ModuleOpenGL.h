@@ -20,9 +20,7 @@ public:
 	
 	void WindowResized(unsigned width, unsigned height);
 
-	const float4x4& GetModelMatrix();
-	const float4x4& GetViewMatrix();
-	const float4x4& GetProjectionMatrix();
+
 
 private:
 
@@ -31,6 +29,8 @@ private:
 
 	unsigned int VAO;
 	unsigned int VBO;
+	unsigned int EBO;
+
 	int program;
 
 	float4x4 model;

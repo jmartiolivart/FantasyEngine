@@ -90,8 +90,8 @@ update_status ModuleEditor::PreUpdate() {
         //Libraries (with versions) used
         ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "SDL ");
         ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "Glew 2.1.0");
-        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "MathGeoLib");
-        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "ImGui");
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "MathGeoLib ");
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "ImGui ");
         ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "Tinygltf");
         
         //License
