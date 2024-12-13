@@ -1,4 +1,4 @@
-#include "ModuleTexture.h"
+ï»¿#include "ModuleTexture.h"
 #include "./DirectXTex-oct2024/DirectXTex/DirectXTex.h"
 #include <GL/glew.h>
 #include <string>
@@ -33,30 +33,30 @@ bool ModuleTexture::Init()
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.GetMetadata().width, image.GetMetadata().height, 0, format, type, imData);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
-	
+
 	//Will load in the fragment shader where layout(binding=5)
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	
+
 
 	/***********TEXTURE SECTION END******************/
 
 
 	/***********SHADER VBO VAO SECTION******************/
 
-	
+
 	float positions[] = {
-    -0.5f,  0.5f, 0.0f, 
-     0.5f,  0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
+	-0.5f,  0.5f, 0.0f,
+	 0.5f,  0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
 	};
 
 	float texCoords[] = {
 	0.0f, 0.0f,
 	1.0f, 0.0f,
 	0.0f, 1.0f,
-	1.0f, 1.0f, 
+	1.0f, 1.0f,
 	};
 
 	unsigned int indices[6] = {
@@ -72,12 +72,12 @@ bool ModuleTexture::Init()
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(positions) + sizeof(texCoords), nullptr, GL_STATIC_DRAW);
-	
+
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(positions), positions);
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(positions), sizeof(texCoords), texCoords);
 
 
-	// Configuració dels atributs de vèrtex (posició, coordenades de textura)
+	// Configuraciï¿½ dels atributs de vï¿½rtex (posiciï¿½, coordenades de textura)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -139,6 +139,13 @@ update_status ModuleTexture::PostUpdate()
 bool ModuleTexture::CleanUp()
 {
 	glDeleteTextures(1, &textureID);
+	LOG("Destroying renderer");
+	glBindVertexArray(0); // Unbind VAO
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteProgram(program);
+	//Destroy window
+	SDL_GL_DeleteContext(context);
 	return true;
 }
 
@@ -196,7 +203,7 @@ void ModuleTexture::SetUp() {
 	context = SDL_GL_CreateContext(App->GetWindow()->window);
 	if (context == NULL) {
 		LOG("Error creating OpenGL context: %s\n", SDL_GetError());
-		
+
 	}
 
 	//Retrive functions avaliable from the OpenGL

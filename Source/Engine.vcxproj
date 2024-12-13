@@ -147,6 +147,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModuleCamera.cpp" />
     <ClCompile Include="imgui-docking\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui-docking\backends\imgui_impl_sdl2.cpp" />
@@ -201,6 +203,8 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="DirectXTex-oct2024\DirectXTex\DirectXTex.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="ModuleCamera.h" />
     <ClInclude Include="debugdraw.h" />
     <ClInclude Include="debug_draw.hpp" />
@@ -282,9 +286,9 @@
     <ClInclude Include="ModuleInput.h" />
     <ClInclude Include="ModuleOpenGL.h" />
     <ClInclude Include="ModuleWindow.h" />
+    <ClInclude Include="tinygltf-2.9.3\tiny_gltf.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DirectXTex_Desktop_2019_Win10.vcxproj" />
     <None Include="math-library\Geometry\KDTree.inl" />
     <None Include="math-library\Geometry\QuadTree.inl" />
     <None Include="math-library\Geometry\TriangleMesh_IntersectRay_AVX.inl" />

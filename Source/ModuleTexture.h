@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Module.h"
 #include <GL/glew.h>
@@ -7,7 +7,7 @@
 
 
 
-class ModuleTexture: public Module {
+class ModuleTexture : public Module {
 
 
 public:
@@ -52,6 +52,6 @@ private:
 	GLenum type;
 
 
-	const wchar_t* imagePath = L"C:\\Users\\jmart\\Desktop\\Màster Videojocs\\FantasyEngine\\Game\\Assets\\Baboon.ppm";
+	const wchar_t* imagePath = L"C:\\Users\\jmart\\Desktop\\MasterVideojocs\\FantasyEngine\\Game\\Assets\\Baboon.ppm";
 
 };

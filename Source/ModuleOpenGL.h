@@ -17,7 +17,7 @@ public:
 	update_status PreUpdate();
 	update_status Update();
 	update_status PostUpdate();
-	
+
 	void WindowResized(unsigned width, unsigned height);
 
 
