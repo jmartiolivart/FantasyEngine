@@ -52,7 +52,7 @@ void Model::Load(const char* assetFileName){
 			LOG("Another primitive");
 			Mesh* mesh = new Mesh;
 			mesh->Load(model, srcMesh, primitive);
-			//mesh->LoadEBO(model, srcMesh, primitive);
+			mesh->LoadEBO(model, srcMesh, primitive);
 			mesh->CreateVAO();
 			meshes.push_back(mesh);
 		}

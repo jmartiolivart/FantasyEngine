@@ -1,8 +1,7 @@
 #version 460
 
-layout(location = 0) in vec3 my_vertex_position;
+layout (location = 0) in vec3 aPos;
 
-void main()
-{
-  gl_Position = vec4(my_vertex_position, 1.0); 
+void main() {
+    gl_Position = vec4(aPos, 1.0);
 }

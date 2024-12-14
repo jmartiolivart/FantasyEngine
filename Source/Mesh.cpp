@@ -75,27 +75,35 @@ void Mesh::Load(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const 
 
 
 
-void Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const tinygltf::Primitive& primitive)
-{
-	const tinygltf::Accessor& indAcc = model.accessors[primitive.indices];
+void Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const tinygltf::Primitive& primitive) {
+	if (primitive.indices >= 0) {
+		// Access the accessor for indices
+		const tinygltf::Accessor& indAcc = model.accessors[primitive.indices];
+		LOG("Loading EBO with %u indices", indAcc.count);
 
-	if (primitive.indices >= 0)
-	{
+		// Access the BufferView for the indices
+		const tinygltf::BufferView& indView = model.bufferViews[indAcc.bufferView];
+
+		// Get the raw data pointer for the indices buffer
+		const unsigned char* buffer = &(model.buffers[indView.buffer].data[indAcc.byteOffset + indView.byteOffset]);
+
+		// Generate and bind the EBO
 		glGenBuffers(1, &EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indAcc.count, nullptr, GL_STATIC_DRAW);
+
+		// Map the buffer to CPU memory for writing indices
 		unsigned int* ptr = reinterpret_cast<unsigned int*>(glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
-		const tinygltf::Accessor& indAcc = model.accessors[primitive.indices];
-		const tinygltf::BufferView& indView = model.bufferViews[indAcc.bufferView];
-		const unsigned char* buffer = &(model.buffers[indView.buffer].data[indAcc.byteOffset +
-			indView.byteOffset]);
+		SDL_assert(ptr != nullptr); // Ensure the buffer mapping succeeded
+		LOG("Mapped EBO buffer successfully");
 
-
+		// Copy indices based on their component type
 		switch (indAcc.componentType) {
 		case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
 			const uint32_t* bufferInd = reinterpret_cast<const uint32_t*>(buffer);
 			for (uint32_t i = 0; i < indAcc.count; ++i) {
 				ptr[i] = bufferInd[i];
+				LOG("Index %u: %u", i, bufferInd[i]); // Log each index
 			}
 			break;
 		}
@@ -103,6 +111,7 @@ void Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Mesh& mesh, con
 			const unsigned short* bufferInd = reinterpret_cast<const unsigned short*>(buffer);
 			for (uint32_t i = 0; i < indAcc.count; ++i) {
 				ptr[i] = bufferInd[i];
+				LOG("Index %u: %u", i, bufferInd[i]); // Log each index
 			}
 			break;
 		}
@@ -110,36 +119,49 @@ void Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Mesh& mesh, con
 			const unsigned char* bufferInd = reinterpret_cast<const unsigned char*>(buffer);
 			for (uint32_t i = 0; i < indAcc.count; ++i) {
 				ptr[i] = bufferInd[i];
+				LOG("Index %u: %u", i, bufferInd[i]); // Log each index
 			}
 			break;
 		}
 		default:
-			SDL_assert(false); 
+			SDL_assert(false); // Unsupported index type
 			break;
 		}
 
+		// Unmap the buffer after copying data
 		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+
+		// Store the number of indices
 		numIndices = indAcc.count;
+		LOG("EBO contains %u indices", numIndices);
 	}
 	else {
+		// If no indices exist, set numIndices to 0
 		numIndices = 0;
+		LOG("No indices found for the primitive");
 	}
 }
 
 
-void Mesh::CreateVAO()
-{
+
+void Mesh::CreateVAO() {
+	// Generate and bind the VAO
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
+
+	// Bind the VBO to provide vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
+	// Enable and configure the vertex attribute for position (layout location = 0)
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 
-	//glEnableVertexAttribArray(1);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * 3 * numVertices));
+	// Bind the EBO to provide index data (if available)
+	if (EBO) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	}
 
+	// Unbind the VAO to prevent accidental modifications
 	glBindVertexArray(0);
 }
 
@@ -147,13 +169,10 @@ void Mesh::CreateVAO()
 void Mesh::Render()
 {
 	glUseProgram(App->render->getProgram());
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * 3 * numVertices));
-	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
+
 }
 
 

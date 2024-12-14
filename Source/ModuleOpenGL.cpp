@@ -50,7 +50,7 @@ bool ModuleOpenGL::Init()
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 	LOG("Maximum nr of vertex attributes supported: %u\n", nrAttributes);
 
-	const char* assetPath = R"(C:\Users\jmart\Desktop\MasterVideojocs\FantasyEngine\Game\Assets\TriangleWithoutIndices.gltf)";
+	const char* assetPath = R"(C:\Users\jmart\Desktop\MasterVideojocs\FantasyEngine\Game\Assets\Triangle.gltf)";
 	modelLoaded = new Model(assetPath);
 
 	glFrontFace(GL_CCW);	 // Front faces will be counter clockwise
@@ -89,17 +89,19 @@ update_status ModuleOpenGL::Update()
 	view = App->camera->LookAt();
 	proj = App->camera->GetProjectionMatrix();
 
-	//glUniformMatrix4fv(2, 1, GL_TRUE, &model[0][0]);
-	//glUniformMatrix4fv(3, 1, GL_TRUE, &view[0][0]);
-	//glUniformMatrix4fv(4, 1, GL_TRUE, &proj[0][0]);
+	glUniformMatrix4fv(2, 1, GL_TRUE, &model[0][0]);
+	glUniformMatrix4fv(3, 1, GL_TRUE, &view[0][0]);
+	glUniformMatrix4fv(4, 1, GL_TRUE, &proj[0][0]);
 
 	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-	/*for (Mesh* mesh : modelLoaded->GetMeshes()) {
-		mesh->Render();
-	}*/
-	for (Mesh* mesh : App->render->GetModelLoaded()->GetMeshes()) {
+
+	/*for (Mesh* mesh : App->render->GetModelLoaded()->GetMeshes()) {
 		mesh->Draw(App->render->GetModelLoaded()->GetTextures());
+	}*/
+
+	for (Mesh* mesh : App->render->GetModelLoaded()->GetMeshes()) {
+		mesh->Render();
 	}
 
 	return UPDATE_CONTINUE;
