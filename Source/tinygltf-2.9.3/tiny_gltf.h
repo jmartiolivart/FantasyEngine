@@ -1,3 +1,5 @@
+#ifndef TINY_GLTF_H
+#define TINY_GLTF_H
 //
 // Header-only tiny glTF 2.0 loader and serializer.
 //
@@ -8731,3 +8733,4 @@ bool TinyGLTF::WriteGltfSceneToFile(const Model *model,
 #endif
 
 #endif  // TINYGLTF_IMPLEMENTATION
+#endif  // TINY_GLTF_H
