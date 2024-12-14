@@ -5,6 +5,7 @@
 #include "math-library/Math/float3.h"
 #include "ModuleOpenGL.h"
 #include "Application.h"
+#include "ModuleCamera.h"
 
 
 //Pass vertex position to vbo in gpu
@@ -168,7 +169,13 @@ void Mesh::CreateVAO() {
 
 void Mesh::Render()
 {
+
 	glUseProgram(App->render->getProgram());
+
+	glUniformMatrix4fv(2, 1, GL_TRUE, &modelMatrix[0][0]);
+	glUniformMatrix4fv(3, 1, GL_TRUE, &viewMatrix[0][0]);
+	glUniformMatrix4fv(4, 1, GL_TRUE, &projMatrix[0][0]);
+
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
@@ -188,5 +195,12 @@ void Mesh::Draw(const std::vector<unsigned>& textures)
 	glDrawArrays(GL_TRIANGLES, 0, numVertices);
 	glBindVertexArray(0);
 }
+
+void Mesh::SetMatrices(const float4x4& model, const float4x4& view, const float4x4& proj) {
+	modelMatrix = model;
+	viewMatrix = view;
+	projMatrix = proj;
+}
+
 
 
