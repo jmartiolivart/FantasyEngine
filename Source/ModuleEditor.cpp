@@ -11,6 +11,10 @@
 #include <io.h>
 #include "log.h"
 #include <chrono>
+#ifdef _WIN32
+#include <windows.h> 
+#endif
+
 
 const char* glsl_version = "#version 460";
 char buf[20];
@@ -39,6 +43,24 @@ update_status ModuleEditor::PreUpdate() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+    
+    
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("About")) {
+                showAbout = true; // Toggle About window visibility
+            }
+            if (ImGui::MenuItem("GitHub Page")) {
+                OpenGitHubPage(); // Opens the GitHub page
+            }
+            if (ImGui::MenuItem("Quit", "Alt+F4")) {
+                return UPDATE_STOP; // Stop the engine
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
 
     ImGui::Begin("Console");
 
@@ -83,49 +105,52 @@ update_status ModuleEditor::PreUpdate() {
         ImGui::PlotHistogram("###milliseconds", &ms_log[0], ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
     }
 
-    if (ImGui::MenuItem("About")) {
-        showAbout = !showAbout;
-    }
-
     if (showAbout) {
+        ImGui::Begin("About Fantasy Engine", &showAbout, ImGuiWindowFlags_AlwaysAutoResize);
 
         // Info Section
         ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.4f, 1.0f), "  Title: Fantasy Engine");
-        ImGui::TextColored(ImVec4(0.6f, 1.0f, 0.6f, 1.0f), "  Description: Fantasy Engine is a videogame-engine made from scratch for the master of Advanced Programming for AAA Video Games.");
+        ImGui::TextColored(ImVec4(0.6f, 1.0f, 0.6f, 1.0f),
+            "  Description: Fantasy Engine is a videogame-engine made from scratch\n"
+            "  for the master of Advanced Programming for AAA Video Games.");
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 1.0f, 1.0f), u8"  Creator: Joan Martí Olivart");
 
         // Libraries (with versions) in two columns
         ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  Libraries Used:");
-        ImGui::Columns(2, nullptr, false); // Create two columns
+        ImGui::Columns(2, nullptr, false);
         ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  SDL");
         ImGui::NextColumn();
-        ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  2.0");
+        ImGui::Text("2.0");
         ImGui::NextColumn();
-        ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  Glew 2.1.0");
+        ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  Glew");
         ImGui::NextColumn();
-        ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  2.1.0");
+        ImGui::Text("2.1.0");
         ImGui::NextColumn();
         ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  MathGeoLib");
         ImGui::NextColumn();
-        ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  2.0");
+        ImGui::Text("2.0");
         ImGui::NextColumn();
         ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  ImGui");
         ImGui::NextColumn();
-        ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  1.89");
+        ImGui::Text("1.89");
         ImGui::NextColumn();
         ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  Tinygltf");
         ImGui::NextColumn();
-        ImGui::TextColored(ImVec4(0.4f, 0.6f, 1.0f, 1.0f), "  2.0");
+        ImGui::Text("2.0");
         ImGui::Columns(1);
-        
-        //License
-        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "  MIT License");
-        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "  Copyright (c) [year] [fullname]");
-        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:");
-        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.");
-        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.");
 
+        // License Section
+        ImGui::Separator();
+        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "  MIT License");
+        ImGui::TextWrapped("Permission is hereby granted, free of charge, to any person obtaining a "
+            "copy of this software and associated documentation files (the \"Software\"), "
+            "to deal in the Software without restriction, including without limitation "
+            "the rights to use, copy, modify, merge, publish, distribute, sublicense, "
+            "and/or sell copies of the Software...");
+
+        ImGui::End();
     }
+
     
     if (ImGui::MenuItem("Configuration")) {
             showConfig = !showConfig;
@@ -170,4 +195,8 @@ bool ModuleEditor::CleanUp() {
     ImGui::DestroyContext();
 
     return true;
+}
+
+void ModuleEditor::OpenGitHubPage() {
+    ShellExecuteA(0, "open", "https://github.com/jmartiolivart", nullptr, nullptr, SW_SHOWNORMAL);
 }

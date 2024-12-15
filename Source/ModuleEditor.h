@@ -13,6 +13,8 @@ public:
 	update_status Update();
 	update_status PostUpdate();
 	bool CleanUp();
+
+	
 	
 	
 private:
@@ -27,5 +29,7 @@ private:
 	bool fullscreen = false;
 	bool resizable = false;
 	bool showConfig = false;
+
+	void OpenGitHubPage();
 	
 };

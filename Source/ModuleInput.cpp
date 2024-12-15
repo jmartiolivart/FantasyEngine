@@ -133,6 +133,9 @@ update_status ModuleInput::Update()
     if (keyboard[SDL_SCANCODE_E]) {
         App->camera->GoDOWN();
     }
+    if (keyboard[SDL_SCANCODE_F]) {
+        App->camera->FocusModel();
+    }
     // Rotation controls
     if (keyboard[SDL_SCANCODE_UP]) {
         App->camera->RotateUpwards();
@@ -146,6 +149,7 @@ update_status ModuleInput::Update()
     if (keyboard[SDL_SCANCODE_RIGHT]) {
         App->camera->RotateRight();
     }
+
 
 
     return UPDATE_CONTINUE;

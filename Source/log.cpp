@@ -9,8 +9,6 @@
 std::string logBuffer;
 std::atomic<bool> newLogs(false);
 
-
-// Definición de la función log (sin inline ni static)
 void log(const char file[], int line, const char* format, ...) {
     static char tmp_string[4096];
     static char tmp_string2[4096];
@@ -39,7 +37,6 @@ void log(const char file[], int line, const char* format, ...) {
     newLogs.store(true);
 }
 
-// Definición de la función getLogBuffer (sin inline ni static)
 std::string getLogBuffer() {
     std::string temp = logBuffer;
     logBuffer.clear();
@@ -47,7 +44,6 @@ std::string getLogBuffer() {
     return temp;
 }
 
-// Definición de la función hasNewLogs (sin inline ni static)
 bool hasNewLogs() {
     return newLogs.load();
 }

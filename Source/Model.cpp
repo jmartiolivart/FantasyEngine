@@ -26,27 +26,23 @@ void Model::Load(const char* assetFileName) {
     LoadModelFile(assetFileName);
     LOG("Creating meshes for model...");
 
-    // Crear la matriu d'escala (100x)
+    // Create scale matrix for default house uploaded
     math::float4x4 scaleMatrix = math::float4x4::identity;
-    scaleMatrix[0][0] = 100.0f; // Escala en l'eix X
-    scaleMatrix[1][1] = 100.0f; // Escala en l'eix Y
-    scaleMatrix[2][2] = 100.0f; // Escala en l'eix Z
+    scaleMatrix[0][0] = 100.0f; 
+    scaleMatrix[1][1] = 100.0f; 
+    scaleMatrix[2][2] = 100.0f; 
 
-    // Crear els meshes i aplicar l'escala
+    // Apply scale and meshes
     for (const auto& srcMesh : model.meshes) {
         for (const auto& primitive : srcMesh.primitives) {
             Mesh* mesh = new Mesh;
             mesh->Load(model, srcMesh, primitive);
             mesh->LoadEBO(model, srcMesh, primitive);
             mesh->CreateVAO();
-
-            // Assignar la matriu d'escala només una vegada
             mesh->SetModelMatrix(scaleMatrix);
-
             meshes.push_back(mesh);
         }
     }
-
     LOG("Model loaded with %zu meshes", meshes.size());
     LoadMaterials();
 }
@@ -54,19 +50,18 @@ void Model::Load(const char* assetFileName) {
 
 
 void Model::LoadMaterials() {
+    
     LOG("Loading materials...");
 
     for (const auto& material : model.materials) {
         if (material.pbrMetallicRoughness.baseColorTexture.index >= 0) {
             const auto& texture = model.textures[material.pbrMetallicRoughness.baseColorTexture.index];
             const auto& image = model.images[texture.source];
-            unsigned int textureId = App->texture->Load(image.uri); // Carregar textura
-            textures.push_back(textureId); // Emmagatzemar l'ID
+            unsigned int textureId = App->texture->Load(image.uri);
+            textures.push_back(textureId);
             LOG("Material loaded texture: %s (ID: %u)", image.uri.c_str(), textureId);
         }
     }
-
-    // Afegir aquest log aquí:
     LOG("Total textures loaded: %zu", textures.size());
 }
 

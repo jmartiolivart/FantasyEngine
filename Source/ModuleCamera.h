@@ -46,11 +46,14 @@ public:
 	void RotateBackwards();
 	void RotateLeft();
 	void RotateRight();
+	void FocusModel();
+
 	
 	/*----MOUSE INPUTS----*/
 	void DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
 	void RotateCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
 	void Zoom(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
+
 
 	float cameraSpeed = 0.01f;
 
@@ -61,6 +64,11 @@ private:
 
 	float3x3 rotationMatrix;
 	float4x4 modelMatrix;
+
+
+	//For focus to the model
+	float3 focusPoint = float3(0.0f, 0.0f, 0.0f); 
+	float defaultFocusDistance = 10.0f;           
 
 	
 };

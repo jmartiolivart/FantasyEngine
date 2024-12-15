@@ -195,6 +195,14 @@ void ModuleCamera::Zoom(int oldMouseX, int oldMouseY, int currentMouseX, int cur
 	}
 }
 
+void ModuleCamera::FocusModel()
+{
+	float3 direction = (focusPoint - mainCamera->pos).Normalized();
+	mainCamera->front = direction;
+	mainCamera->pos = focusPoint - (mainCamera->front * defaultFocusDistance);
+	mainCamera->up = float3(0.0f, 1.0f, 0.0f);
+}
+
 
 float ModuleCamera::SetHoritzontalFov(float verticalFov) {
 	// Change the horizontal FOV to meet the new aspect ratio.
