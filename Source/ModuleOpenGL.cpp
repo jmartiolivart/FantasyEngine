@@ -46,55 +46,6 @@ bool ModuleOpenGL::Init() {
         return false;
     }
 
-    glUseProgram(this->program);
-
-    // Obtenir ubicació del uniform "texture_diffuse"
-    this->textureDiffuseLoc = glGetUniformLocation(this->program, "texture_diffuse");
-    if (this->textureDiffuseLoc == -1) {
-        LOG("Could not find uniform location for 'texture_diffuse'");
-    }
-
-    // Configuració del quad
-    float quadVertices[] = {
-        // Posició        // Coordenades de textura
-        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f, // Inferior esquerre
-         1.0f, -1.0f, 0.0f,  1.0f, 0.0f, // Inferior dret
-        -1.0f,  1.0f, 0.0f,  0.0f, 1.0f, // Superior esquerre
-         1.0f,  1.0f, 0.0f,  1.0f, 1.0f  // Superior dret
-    };
-
-    unsigned int quadIndices[] = {
-        0, 1, 2, // Triangle 1
-        1, 3, 2  // Triangle 2
-    };
-
-    // Crear VAO, VBO i EBO
-    glGenVertexArrays(1, &quadVAO);
-    glGenBuffers(1, &quadVBO);
-    glGenBuffers(1, &quadEBO);
-
-    glBindVertexArray(quadVAO);
-
-    // Configurar VBO
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-
-    // Configurar EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
-
-    // Atribut de posició
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-
-    // Atribut de coordenades de textura
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    glBindVertexArray(0);
-
-    // Carregar la textura
-    LOG("Texture ID loaded: %u", textureID);
 
     LOG("OpenGL initialized successfully.");
     return true;
@@ -109,22 +60,22 @@ update_status ModuleOpenGL::PreUpdate() {
 }
 
 update_status ModuleOpenGL::Update() {
-    
-    // Model to load
     Model* model = App->model->GetModel();
 
-    // Assing view and projection matrix
+    // Assignar les matrius de vista i projecció
     this->view = App->camera->LookAt();
     this->proj = App->camera->GetProjectionMatrix();
 
-    // Render the meshes
+    // Renderitzar tots els meshes
     for (Mesh* mesh : model->GetMeshes()) {
-        mesh->SetMatrices(math::float4x4::identity, this->view, this->proj);
+        mesh->SetMatrices(math::float4x4::identity, this->view, this->proj); // Sense escales
         mesh->Render();
     }
 
     return UPDATE_CONTINUE;
 }
+
+
 
 
 update_status ModuleOpenGL::PostUpdate() {

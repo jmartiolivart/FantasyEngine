@@ -39,6 +39,12 @@ update_status ModuleInput::Update()
         ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
         switch (sdlEvent.type)
         {
+        case SDL_DROPFILE: {
+            char* dropped_filedir = sdlEvent.drop.file;
+            App->GetModel()->Load(dropped_filedir);
+            SDL_free(dropped_filedir);
+            break;
+        }
         case SDL_QUIT:
             return UPDATE_STOP;
         case SDL_WINDOWEVENT:
@@ -140,6 +146,7 @@ update_status ModuleInput::Update()
     if (keyboard[SDL_SCANCODE_RIGHT]) {
         App->camera->RotateRight();
     }
+
 
     return UPDATE_CONTINUE;
 }

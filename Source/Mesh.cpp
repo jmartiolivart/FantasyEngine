@@ -73,8 +73,11 @@ void Mesh::Load(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const 
         if (hasTexCoords) {
             float u = *(float*)(currentTex);
             float v = *(float*)(currentTex + sizeof(float));
+            v = 1.0f - v; // Inverteix l'eix Y per corregir les coordenades de textura
+
             *ptr++ = u;
             *ptr++ = v;
+
 
             currentTex += texStride;
         }
@@ -156,17 +159,17 @@ void Mesh::CreateVAO() {
     glBindVertexArray(0);
     LOG("VAO created with ID: %u", VAO);
 }
-
 void Mesh::Render() {
     glUseProgram(App->render->getProgram());
     LOG("Shader program ID: %u", App->render->getProgram());
 
-    // Assignar les matrius de transformació
-    glUniformMatrix4fv(2, 1, GL_TRUE, &modelMatrix[0][0]); // Matriu Model
-    glUniformMatrix4fv(3, 1, GL_TRUE, &App->camera->LookAt()[0][0]); // Matriu View
-    glUniformMatrix4fv(4, 1, GL_TRUE, &App->camera->GetProjectionMatrix()[0][0]); // Matriu Projection
+    
+    
 
-    // Verificar el materialIndex
+    glUniformMatrix4fv(2, 1, GL_TRUE, &App->camera->GetModelMatrix()[0][0]);
+    glUniformMatrix4fv(3, 1, GL_TRUE, &App->camera->LookAt()[0][0]); 
+    glUniformMatrix4fv(4, 1, GL_TRUE, &App->camera->GetProjectionMatrix()[0][0]);
+
     LOG("Rendering mesh with materialIndex: %d", materialIndex);
 
     // Enllaçar la textura si n'hi ha
@@ -188,7 +191,8 @@ void Mesh::Render() {
         LOG("No texture bound for materialIndex: %d", materialIndex);
     }
 
-    // Vincular VAO i dibuixar
+    LOG("Mesh VAO: %u, Vertices: %u, Indices: %u", VAO, numVertices, numIndices);
+
     glBindVertexArray(VAO);
     LOG("Bound VAO: %u", VAO);
 
@@ -208,8 +212,6 @@ void Mesh::Render() {
 
 
 
-
-
 void Mesh::Draw(const std::vector<unsigned>&) {
     glUseProgram(App->render->getProgram());
     glBindVertexArray(VAO);
@@ -222,4 +224,12 @@ void Mesh::SetMatrices(const float4x4& model, const float4x4& view, const float4
     modelMatrix = model;
     viewMatrix = view;
     projMatrix = proj;
+    LOG("Mesh ModelMatrix position: %f, %f, %f", modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
+
+}
+
+void Mesh::SetModelMatrix(const math::float4x4& transform) {
+    modelMatrix = transform; // Assigna directament la nova matriu
+    LOG("SetModelMatrix -> Assigned ModelMatrix: [%f, %f, %f]",
+        modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2]);
 }

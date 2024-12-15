@@ -26,21 +26,32 @@ void Model::Load(const char* assetFileName) {
     LoadModelFile(assetFileName);
     LOG("Creating meshes for model...");
 
+    // Crear la matriu d'escala (100x)
+    math::float4x4 scaleMatrix = math::float4x4::identity;
+    scaleMatrix[0][0] = 100.0f; // Escala en l'eix X
+    scaleMatrix[1][1] = 100.0f; // Escala en l'eix Y
+    scaleMatrix[2][2] = 100.0f; // Escala en l'eix Z
+
+    // Crear els meshes i aplicar l'escala
     for (const auto& srcMesh : model.meshes) {
         for (const auto& primitive : srcMesh.primitives) {
             Mesh* mesh = new Mesh;
             mesh->Load(model, srcMesh, primitive);
             mesh->LoadEBO(model, srcMesh, primitive);
             mesh->CreateVAO();
+
+            // Assignar la matriu d'escala només una vegada
+            mesh->SetModelMatrix(scaleMatrix);
+
             meshes.push_back(mesh);
         }
     }
 
     LOG("Model loaded with %zu meshes", meshes.size());
-
-    // Afegir aquesta línia:
-    LoadMaterials(); // Carrega i associa les textures als materials
+    LoadMaterials();
 }
+
+
 
 void Model::LoadMaterials() {
     LOG("Loading materials...");

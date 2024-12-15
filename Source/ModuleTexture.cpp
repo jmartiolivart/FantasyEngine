@@ -72,4 +72,3 @@ unsigned int ModuleTexture::Load(const std::string& uri) {
     textureCache[uri] = textureID;
     return textureID;
 }
-

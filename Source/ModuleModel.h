@@ -13,6 +13,8 @@ public:
 
     Model* GetModel();
 
+    void Load(const char* filepath);
+
     void LoadModel(const std::string& filePath);
 
 

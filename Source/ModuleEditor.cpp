@@ -41,6 +41,7 @@ update_status ModuleEditor::PreUpdate() {
     ImGui::NewFrame();
 
     ImGui::Begin("Console");
+
     if (ImGui::MenuItem("Logs")) {
         showLogs = !showLogs;
     }

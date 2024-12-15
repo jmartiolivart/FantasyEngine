@@ -22,6 +22,8 @@ public:
 	float3 Orientation() const;
 	float4x4 GetProjectionMatrix();
 	float4x4 GetViewMatrix();
+	void SetModelMatrix(const float4x4& matrix);
+	float4x4& GetModelMatrix();
 
 	inline Frustum* GetCamera() { return mainCamera; };
 
@@ -29,6 +31,8 @@ public:
 	float3 GetUp() const;     
 
 	void SetPosition(const float3& position);
+
+	
 	
 
 	/*----KEY INPUTS----*/
@@ -56,7 +60,7 @@ private:
 	Frustum* mainCamera = nullptr;
 
 	float3x3 rotationMatrix;
-
+	float4x4 modelMatrix;
 
 	
 };

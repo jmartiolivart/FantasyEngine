@@ -44,6 +44,7 @@ float4x4 ModuleCamera::LookAt() {
 	float3 x = mainCamera->up.Cross(z).Normalized();
 	float3 y = z.Cross(x);
 
+
 	return float4x4(
 		x.x, x.y, x.z, -x.Dot(mainCamera->pos), 
 		y.x, y.y, y.z,  y.Dot(mainCamera->pos),
@@ -246,3 +247,10 @@ void ModuleCamera::SetPosition(const float3& position)
 }
 
 
+void ModuleCamera::SetModelMatrix(const float4x4& matrix) {
+	modelMatrix = matrix;
+}
+
+float4x4& ModuleCamera::GetModelMatrix() {
+	return modelMatrix;
+}

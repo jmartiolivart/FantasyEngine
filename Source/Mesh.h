@@ -11,6 +11,10 @@ public:
     void Render();
     void Draw(const std::vector<unsigned>& textures);
     void SetMatrices(const float4x4& model, const float4x4& view, const float4x4& proj);
+    void SetModelMatrix(const math::float4x4& transform);
+    const math::float4x4& GetModelMatrix() const; // Getter públic
+
+
 
 private:
     unsigned int VBO = 0;
@@ -23,4 +27,7 @@ private:
     float4x4 modelMatrix;
     float4x4 viewMatrix;
     float4x4 projMatrix;
+
+
+    bool prova = true;
 };
