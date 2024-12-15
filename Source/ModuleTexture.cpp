@@ -37,10 +37,13 @@ bool ModuleTexture::CleanUp() {
 }
 
 unsigned int ModuleTexture::Load(const std::string& uri) {
-    // Comprovar si ja està carregada
-    auto it = textureCache.find(uri);
+    
+    std::string basePath = "Assets/";
+    std::string fullPath = basePath + uri;
+
+    auto it = textureCache.find(fullPath);
     if (it != textureCache.end()) {
-        LOG("Texture already loaded: %s", uri.c_str());
+        LOG("Texture already loaded: %s", fullPath.c_str());
         return it->second;
     }
 
@@ -51,15 +54,15 @@ unsigned int ModuleTexture::Load(const std::string& uri) {
 
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(uri.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(fullPath.c_str(), &width, &height, &nrChannels, 0);
     if (data) {
         GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-        LOG("Loaded texture: %s (ID: %u)", uri.c_str(), textureID);
+        LOG("Loaded texture: %s (ID: %u)", fullPath.c_str(), textureID);
     }
     else {
-        LOG("Failed to load texture: %s", uri.c_str());
+        LOG("Failed to load texture: %s", fullPath.c_str());
     }
     stbi_image_free(data);
 
@@ -69,6 +72,6 @@ unsigned int ModuleTexture::Load(const std::string& uri) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    textureCache[uri] = textureID;
+    textureCache[fullPath] = textureID;
     return textureID;
 }

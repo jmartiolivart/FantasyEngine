@@ -9,7 +9,7 @@ ModuleModel::~ModuleModel() {
 }
 
 bool ModuleModel::Init() {
-    model = new Model("Assets/BakerHouse/BakerHouse.gltf");
+    model = new Model("Assets/BakerHouse.gltf");
     math::float4x4 scaleMatrix = math::float4x4::identity;
     scaleMatrix[0][0] = 100.0f;
     scaleMatrix[1][1] = 100.0f;
