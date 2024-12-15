@@ -1,121 +1,75 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#include "ModuleTexture.h"
-#include "./DirectXTex-oct2024/DirectXTex/DirectXTex.h"
+﻿#include "ModuleTexture.h"
+#include "Globals.h"
 #include <GL/glew.h>
 #include <string>
-#include "Shader.h"
-#include "Application.h"
-#include "ModuleCamera.h"
-#include "Mesh.h"
-#include "Model.h"
-#include "ModuleOpenGL.h"
+#include "./DirectXTex-oct2024/DirectXTex/DirectXTex.h"
 
-bool ModuleTexture::Init()
-{
 
-	return true;
+ModuleTexture::ModuleTexture() {}
+ModuleTexture::~ModuleTexture() {}
+
+bool ModuleTexture::Init() {
+    LOG("Initializing texture module...");
+    return true;
 }
 
-update_status ModuleTexture::PreUpdate()
-{
-
-	
-	return UPDATE_CONTINUE;
+update_status ModuleTexture::PreUpdate() {
+    return UPDATE_CONTINUE;
 }
 
-update_status ModuleTexture::Update()
-{
-	
-	return UPDATE_CONTINUE;
+update_status ModuleTexture::Update() {
+    return UPDATE_CONTINUE;
 }
 
-update_status ModuleTexture::PostUpdate()
-{
-	return UPDATE_CONTINUE;
+update_status ModuleTexture::PostUpdate() {
+    return UPDATE_CONTINUE;
 }
 
-bool ModuleTexture::CleanUp()
-{
-	
-	return true;
+bool ModuleTexture::CleanUp() {
+    LOG("Cleaning up texture module...");
+    for (auto& texture : textureCache) {
+        glDeleteTextures(1, &texture.second);
+    }
+    textureCache.clear();
+    return true;
 }
 
 unsigned int ModuleTexture::Load(const std::string& uri) {
+    // Comprovar si la textura ja està carregada
+    auto it = textureCache.find(uri);
+    if (it != textureCache.end()) {
+        LOG("Texture already loaded: %s", uri.c_str());
+        return it->second;
+    }
 
-	// Convert URI to unicode
-	size_t len = uri.length() + 1;
-	wchar_t* wstr = new wchar_t[len];
-	std::mbstowcs(wstr, uri.c_str(), len);
-	
-	HRESULT hr = DirectX::LoadFromDDSFile(wstr, DirectX::DDS_FLAGS::DDS_FLAGS_NONE, &metadata, image);
+    // Inicialitzar DirectXTex
+    DirectX::TexMetadata metadata;
+    DirectX::ScratchImage image;
 
-	if (FAILED(hr)) {
-		hr = DirectX::LoadFromTGAFile(wstr, DirectX::TGA_FLAGS::TGA_FLAGS_NONE, &metadata, image);
-		if (FAILED(hr)) {
-			hr = DirectX::LoadFromWICFile(wstr, DirectX::WIC_FLAGS::WIC_FLAGS_NONE, &metadata, image);
-			if (FAILED(hr)) {
-				LOG("Error loading texture from %s", uri.c_str());
-			}
-		}
-	}
+    HRESULT hr = DirectX::LoadFromWICFile(std::wstring(uri.begin(), uri.end()).c_str(), DirectX::WIC_FLAGS_NONE, &metadata, image);
+    if (FAILED(hr)) {
+        LOG("Error loading texture: %s", uri.c_str());
+        return 0;
+    }
 
-	if (SUCCEEDED(hr)) {
-		LOG("Succeeded loading the texture");
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
-		switch (metadata.format)
-		{
-		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-		case DXGI_FORMAT_R8G8B8A8_UNORM:
-			internalFormat = GL_RGBA8;
-			format = GL_RGBA;
-			type = GL_UNSIGNED_BYTE;
-			LOG("Conversion to DXGI_FORMAT_R8G8B8A8_UNORM_SRGB | DXGI_FORMAT_R8G8B8A8_UNORM");
-			break;
-		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
-		case DXGI_FORMAT_B8G8R8A8_UNORM:
-			internalFormat = GL_RGBA8;
-			format = GL_BGRA;
-			type = GL_UNSIGNED_BYTE;
-			LOG("Conversion to DXGI_FORMAT_B8G8R8A8_UNORM_SRGB | DXGI_FORMAT_B8G8R8A8_UNORM");
-			break;
-		case DXGI_FORMAT_B5G6R5_UNORM:
-			internalFormat = GL_RGB8;
-			format = GL_BGR;
-			type = GL_UNSIGNED_BYTE;
-			LOG("Conversion to DXGI_FORMAT_B5G6R5_UNORM");
-			break;
-		default:
-			assert(false && "Unsupported format");
-		}
-	}
-	delete[] wstr;
+    GLenum internalFormat = GL_RGBA8;
+    GLenum format = GL_RGBA;
+    GLenum type = GL_UNSIGNED_BYTE;
 
-	glGenTextures(1, &textureID);
+    // Assignar textura a OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, metadata.width, metadata.height, 0, format, type, image.GetPixels());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
-	//Configure texture parameters to tell use all the mipmaps availables
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, image.GetMetadata().mipLevels - 1);
+    textureCache[uri] = textureID;
 
-
-	//Load to GPU all mipmaps
-	if (image.GetMetadata().mipLevels > 0) {
-		for (size_t i = 0; i < image.GetMetadata().mipLevels; ++i) {
-			const DirectX::Image* mip = image.GetImage(i, 0, 0);
-			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, mip->width, mip->height, 0, format, type, mip->pixels);
-		}
-	}
-	else
-	{
-		void* imData = image.GetPixels();
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.GetMetadata().width, image.GetMetadata().height, 0, format, type, imData);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-
-	//Will load in the fragment shader where layout(binding=5)
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-
-	return textureID;
-
+    LOG("Texture loaded successfully: %s (ID: %u)", uri.c_str(), textureID);
+    return textureID;
 }

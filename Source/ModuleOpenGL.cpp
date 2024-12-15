@@ -1,151 +1,112 @@
-﻿#include "Globals.h"
+﻿#include "ModuleOpenGL.h"
 #include "Application.h"
-#include "ModuleOpenGL.h"
 #include "ModuleWindow.h"
-#include "SDL.h"
-#include <GL/glew.h>
-#include "Shader.h"
 #include "ModuleCamera.h"
-#include "./math-library/Math/MathAll.h"
-#include "Model.h"
-#include "Application.h"
-#include "ModuleTexture.h"
+#include "Shader.h"
+#include "Globals.h"
+#include <GL/glew.h>
+#include <SDL.h>
+#include <string>
 #include "Mesh.h"
+#include "./math-library/Math/float4x4.h"
 
-ModuleOpenGL::ModuleOpenGL()
-{
+ModuleOpenGL::ModuleOpenGL() {}
+ModuleOpenGL::~ModuleOpenGL() {}
+
+bool ModuleOpenGL::Init() {
+    
+    LOG("Initializing OpenGL...");
+
+    context = SDL_GL_CreateContext(App->GetWindow()->window);
+    if (context == NULL) {
+        LOG("Error creating OpenGL context: %s\n", SDL_GetError());
+        return false;
+    }
+
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        LOG("Error initializing GLEW: %s", glewGetErrorString(err));
+        return false;
+    }
+
+    // Configurar opcions d'OpenGL
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+    // Crear i carregar shaders
+    std::string vertexShader = Shader::readShader("default_vertex.glsl");
+    std::string fragmentShader = Shader::readShader("default_fragment.glsl");
+    this->program = Shader::CreateShader(vertexShader, fragmentShader);
+
+    if (this->program == 0) {
+        LOG("Error loading shaders");
+        return false;
+    }
+    glUseProgram(this->program);
+
+    // Obtenir ubicacions de les matrius
+    this->modelLoc = glGetUniformLocation(this->program, "model");
+    this->viewLoc = glGetUniformLocation(this->program, "view");
+    this->projLoc = glGetUniformLocation(this->program, "proj");
+    this->textureDiffuseLoc = glGetUniformLocation(this->program, "texture_diffuse");
+
+    LOG("OpenGL initialized successfully.");
+    return true;
 }
 
-// Destructor
-ModuleOpenGL::~ModuleOpenGL()
-{
+update_status ModuleOpenGL::PreUpdate() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    return UPDATE_CONTINUE;
 }
 
-// Called before render is available
-bool ModuleOpenGL::Init()
-{
+update_status ModuleOpenGL::Update() {
+   
+    // Model to load
+    Model* model = App->model->GetModel();
 
-	
+    // Assing view and projection matrix
+    this->view = App->camera->LookAt();
+    this->proj = App->camera->GetProjectionMatrix();
 
-	LOG("Creating Renderer context");
+    // Render the meshes
+    for (Mesh* mesh : model->GetMeshes()) {
+        mesh->SetMatrices(math::float4x4::identity, this->view, this->proj);
+        mesh->Render();
+    }
 
-	context = SDL_GL_CreateContext(App->GetWindow()->window);
-	if (context == NULL) {
-		LOG("Error creating OpenGL context: %s\n", SDL_GetError());
-	}
-
-	//Retrive functions avaliable from the OpenGL
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-	{
-		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-	}
-
-	//Some info about the GPU usign glew
-	LOG("Using Glew %s", glewGetString(GLEW_VERSION));
-	LOG("Vendor: %s", glGetString(GL_VENDOR));
-	LOG("Renderer: %s", glGetString(GL_RENDERER));
-	LOG("OpenGL version supported %s", glGetString(GL_VERSION));
-	LOG("GLSL: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-	LOG("Maximum nr of vertex attributes supported: %u\n", nrAttributes);
-
-	const char* assetPath = R"(C:\Users\jmart\Desktop\MasterVideojocs\FantasyEngine\Game\Assets\Box.gltf)";
-	modelLoaded = new Model(assetPath);
-
-	glFrontFace(GL_CCW);	 // Front faces will be counter clockwise
-	glEnable(GL_DEPTH_TEST); // Enable depth test
-	glDisable(GL_CULL_FACE); // Disable cull backward faces
-
-
-	glClearColor(0.7f, 0.7f, 0.7f, 1.0f); //Define the color of background 
-	glViewport(0, 0, *(App->GetWindow()->window_width), *(App->GetWindow()->window_height)); //What part of the window will render
-
-	//Shaders read and apply
-	std::string vertexShader = Shader::readShader("default_vertex.glsl");
-	std::string fragmentShader = Shader::readShader("default_fragment.glsl");
-	program = Shader::CreateShader(vertexShader, fragmentShader);
-
-	if (program == 0) {
-		LOG("Error linking shaders");
-		return false;
-	}
-
-
-	return true;
+    return UPDATE_CONTINUE;
 }
 
-update_status ModuleOpenGL::PreUpdate()
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	return UPDATE_CONTINUE;
+update_status ModuleOpenGL::PostUpdate() {
+    SDL_GL_SwapWindow(App->GetWindow()->window);
+    return UPDATE_CONTINUE;
 }
 
-// Called every draw update
-update_status ModuleOpenGL::Update()
-{
-
-	model = float4x4::identity;
-	view = App->camera->LookAt();
-	proj = App->camera->GetProjectionMatrix();
-
-
-	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-
-	/*for (Mesh* mesh : App->render->GetModelLoaded()->GetMeshes()) {
-		mesh->Draw(App->render->GetModelLoaded()->GetTextures());
-	}*/
-
-	for (Mesh* mesh : App->render->GetModelLoaded()->GetMeshes()) {
-		mesh->SetMatrices(model, view, proj);
-		mesh->Render();
-	}
-
-	return UPDATE_CONTINUE;
+bool ModuleOpenGL::CleanUp() {
+    LOG("Cleaning up OpenGL module...");
+    glDeleteProgram(this->program);
+    return true;
 }
 
-update_status ModuleOpenGL::PostUpdate()
-{
-	SDL_GL_SwapWindow(App->GetWindow()->window); //Change the buffer that is showing
-	return UPDATE_CONTINUE;
+void ModuleOpenGL::WindowResized(unsigned width, unsigned height) {
+    glViewport(0, 0, width, height);
+    float newAspectRatio = static_cast<float>(width) / static_cast<float>(height);
+    App->camera->SetAspectRatio(newAspectRatio);
 }
 
-// Called before quitting
-bool ModuleOpenGL::CleanUp()
-{
-	
-
-	return true;
+const math::float4x4& ModuleOpenGL::GetModelMatrix() const {
+    return this->model;
 }
 
-void ModuleOpenGL::WindowResized(unsigned width, unsigned height)
-{
-	glViewport(0, 0, width, height);
-	float newAspectRatio = (float)width / height;
-	App->camera->SetAspectRatio(newAspectRatio);
+const math::float4x4& ModuleOpenGL::GetViewMatrix() const {
+    return this->view;
 }
 
-
-
-const float4x4& ModuleOpenGL::GetModelMatrix() {
-	return model;
+const math::float4x4& ModuleOpenGL::GetProjectionMatrix() const {
+    return this->proj;
 }
 
-const float4x4& ModuleOpenGL::GetViewMatrix() {
-	return view;
-}
-
-const float4x4& ModuleOpenGL::GetProjectionMatrix() {
-	return proj;
-}
-
-int ModuleOpenGL::getProgram()
-{
-	return program;
-}
-
-
-Model* ModuleOpenGL::GetModelLoaded() const {
-	return modelLoaded;
+int ModuleOpenGL::getProgram() const {
+    return this->program;
 }

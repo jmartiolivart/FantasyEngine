@@ -1,206 +1,198 @@
 #include "Mesh.h"
+#include "Globals.h"
 #include "./tinygltf-2.9.3/tiny_gltf.h"
 #include <SDL.h>
 #include <GL/glew.h>
 #include "math-library/Math/float3.h"
-#include "ModuleOpenGL.h"
 #include "Application.h"
+#include "Model.h"
+#include "ModuleOpenGL.h"
 #include "ModuleCamera.h"
+#include "ModuleModel.h"
 
 
-//Pass vertex position to vbo in gpu
 void Mesh::Load(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const tinygltf::Primitive& primitive) {
-	// Acces to vertex atribut POSITION -> if not found = primitive.attributes.end()
-	const auto& itPos = primitive.attributes.find("POSITION");
-	if (itPos != primitive.attributes.end()) {
+    LOG("Loading mesh...");
 
-		// Look accessor in string POSITION and check if it is a vec3 and float
-		const tinygltf::Accessor& posAcc = model.accessors[itPos->second];
-		SDL_assert(posAcc.type == TINYGLTF_TYPE_VEC3);
-		SDL_assert(posAcc.componentType == GL_FLOAT);
+    // Posicions
+    const auto itPos = primitive.attributes.find("POSITION");
+    if (itPos == primitive.attributes.end()) {
+        LOG("Warning: No position attribute found");
+        return;
+    }
+    const tinygltf::Accessor& posAcc = model.accessors[itPos->second];
+    SDL_assert(posAcc.type == TINYGLTF_TYPE_VEC3 && posAcc.componentType == GL_FLOAT);
 
-		// Access to the vertex positions of the primitive
-		const tinygltf::BufferView& posView = model.bufferViews[posAcc.bufferView];
-		const tinygltf::Buffer& posBuffer = model.buffers[posView.buffer];
-		const unsigned char* bufferPos = &(posBuffer.data[posAcc.byteOffset + posView.byteOffset]);
+    const tinygltf::BufferView& posView = model.bufferViews[posAcc.bufferView];
+    const tinygltf::Buffer& posBuffer = model.buffers[posView.buffer];
+    const unsigned char* bufferPos = &posBuffer.data[posAcc.byteOffset + posView.byteOffset];
 
-		numVertices = posAcc.count; // Initialize numVertices
-		LOG("Number of vertices: %d", numVertices);
+    numVertices = (unsigned int)posAcc.count;
+    size_t posStride = posView.byteStride ? posView.byteStride : sizeof(float) * 3;
 
-		// Calculate stride (ensure correct spacing between vertices)
-		size_t stride = posView.byteStride ? posView.byteStride : sizeof(float) * 3;
-		LOG("Stride size: %zu", stride);
+    // Coordenades de textura
+    const auto itTex = primitive.attributes.find("TEXCOORD_0");
+    bool hasTex = (itTex != primitive.attributes.end());
 
-		// List data loaded in buffer
-		for (size_t i = 0; i < numVertices; ++i) {
-			float x = *reinterpret_cast<const float*>(bufferPos);
-			float y = *reinterpret_cast<const float*>(bufferPos + sizeof(float));
-			float z = *reinterpret_cast<const float*>(bufferPos + 2 * sizeof(float));
-			LOG("Vertex %zu: (%f, %f, %f)", i, x, y, z);
-			bufferPos += stride; // Avancem segons el stride
-		}
+    const unsigned char* bufferTexCoord = nullptr;
+    size_t texStride = sizeof(float) * 2;
+    if (hasTex) {
+        const tinygltf::Accessor& texAcc = model.accessors[itTex->second];
+        SDL_assert(texAcc.type == TINYGLTF_TYPE_VEC2 && texAcc.componentType == GL_FLOAT);
 
-		// Create a VBO load data
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        const tinygltf::BufferView& texView = model.bufferViews[texAcc.bufferView];
+        const tinygltf::Buffer& texBuffer = model.buffers[texView.buffer];
+        bufferTexCoord = &texBuffer.data[texAcc.byteOffset + texView.byteOffset];
 
-		// VBO size (position + texture (if there's texture))
-		size_t vboSize = sizeof(float) * 3 * numVertices; // 3 floats per posició de vèrtex
-		const auto& itTexCoord = primitive.attributes.find("TEXCOORD_0");
-		if (itTexCoord != primitive.attributes.end()) {
-			const tinygltf::Accessor& texCoordAcc = model.accessors[itTexCoord->second];
-			vboSize += sizeof(float) * 2 * numVertices; // 2 floats per textura
-		}
-		LOG("VBO size: %zu bytes", vboSize);
+        texStride = texView.byteStride ? texView.byteStride : sizeof(float) * 2;
+        hasTexCoords = true;
+    }
 
-		glBufferData(GL_ARRAY_BUFFER, vboSize, nullptr, GL_STATIC_DRAW);
+    // Crear i omplir el VBO
+    size_t vboSize = sizeof(float) * 3 * numVertices + (hasTexCoords ? sizeof(float) * 2 * numVertices : 0);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vboSize, nullptr, GL_STATIC_DRAW);
 
-		float* ptr = reinterpret_cast<float*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+    float* ptr = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    SDL_assert(ptr != nullptr);
 
-		// Trail the vertices for copy data to the buffer
-		bufferPos = &(posBuffer.data[posAcc.byteOffset + posView.byteOffset]); // Reset bufferPos
-		for (size_t i = 0; i < numVertices; ++i) {
-			*ptr++ = *reinterpret_cast<const float*>(bufferPos);
-			*ptr++ = *reinterpret_cast<const float*>(bufferPos + sizeof(float));
-			*ptr++ = *reinterpret_cast<const float*>(bufferPos + 2 * sizeof(float));
-			bufferPos += stride;
+    const unsigned char* currentPos = bufferPos;
+    const unsigned char* currentTex = bufferTexCoord;
+    for (size_t i = 0; i < numVertices; ++i) {
+        float px = *(float*)(currentPos);
+        float py = *(float*)(currentPos + sizeof(float));
+        float pz = *(float*)(currentPos + 2 * sizeof(float));
 
-			LOG("Copied vertex %zu to VBO", i);
-		}
+        *ptr++ = px;
+        *ptr++ = py;
+        *ptr++ = pz;
 
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-	}
+        currentPos += posStride;
 
-	materialIndex = primitive.material;
+        if (hasTexCoords) {
+            float u = *(float*)(currentTex);
+            float v = *(float*)(currentTex + sizeof(float));
+            *ptr++ = u;
+            *ptr++ = v;
+
+            currentTex += texStride;
+        }
+    }
+
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    materialIndex = primitive.material;
+    LOG("Mesh loaded. Vertices: %u, HasTexCoords: %d, MaterialIndex: %d", numVertices, hasTexCoords ? 1 : 0, materialIndex);
 }
-
-
 
 void Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const tinygltf::Primitive& primitive) {
-	if (primitive.indices >= 0) {
-		// Access the accessor for indices
-		const tinygltf::Accessor& indAcc = model.accessors[primitive.indices];
-		LOG("Loading EBO with %u indices", indAcc.count);
+    if (primitive.indices < 0) {
+        numIndices = 0;
+        return;
+    }
 
-		// Access the BufferView for the indices
-		const tinygltf::BufferView& indView = model.bufferViews[indAcc.bufferView];
+    LOG("Loading EBO...");
+    const tinygltf::Accessor& indAcc = model.accessors[primitive.indices];
+    const tinygltf::BufferView& indView = model.bufferViews[indAcc.bufferView];
+    const unsigned char* buffer = &model.buffers[indView.buffer].data[indAcc.byteOffset + indView.byteOffset];
 
-		// Get the raw data pointer for the indices buffer
-		const unsigned char* buffer = &(model.buffers[indView.buffer].data[indAcc.byteOffset + indView.byteOffset]);
+    numIndices = (unsigned int)indAcc.count;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, nullptr, GL_STATIC_DRAW);
 
-		// Generate and bind the EBO
-		glGenBuffers(1, &EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indAcc.count, nullptr, GL_STATIC_DRAW);
+    unsigned int* ptr = (unsigned int*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+    SDL_assert(ptr != nullptr);
 
-		// Map the buffer to CPU memory for writing indices
-		unsigned int* ptr = reinterpret_cast<unsigned int*>(glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
-		SDL_assert(ptr != nullptr); // Ensure the buffer mapping succeeded
-		LOG("Mapped EBO buffer successfully");
+    switch (indAcc.componentType) {
+    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
+        const uint32_t* src = (const uint32_t*)buffer;
+        for (size_t i = 0; i < numIndices; ++i) ptr[i] = src[i];
+        break;
+    }
+    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
+        const unsigned short* src = (const unsigned short*)buffer;
+        for (size_t i = 0; i < numIndices; ++i) ptr[i] = src[i];
+        break;
+    }
+    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
+        const unsigned char* src = (const unsigned char*)buffer;
+        for (size_t i = 0; i < numIndices; ++i) ptr[i] = src[i];
+        break;
+    }
+    default:
+        LOG("Unsupported index type");
+        SDL_assert(false);
+    }
 
-		// Copy indices based on their component type
-		switch (indAcc.componentType) {
-		case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
-			const uint32_t* bufferInd = reinterpret_cast<const uint32_t*>(buffer);
-			for (uint32_t i = 0; i < indAcc.count; ++i) {
-				ptr[i] = bufferInd[i];
-				LOG("Index %u: %u", i, bufferInd[i]); // Log each index
-			}
-			break;
-		}
-		case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
-			const unsigned short* bufferInd = reinterpret_cast<const unsigned short*>(buffer);
-			for (uint32_t i = 0; i < indAcc.count; ++i) {
-				ptr[i] = bufferInd[i];
-				LOG("Index %u: %u", i, bufferInd[i]); // Log each index
-			}
-			break;
-		}
-		case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
-			const unsigned char* bufferInd = reinterpret_cast<const unsigned char*>(buffer);
-			for (uint32_t i = 0; i < indAcc.count; ++i) {
-				ptr[i] = bufferInd[i];
-				LOG("Index %u: %u", i, bufferInd[i]); // Log each index
-			}
-			break;
-		}
-		default:
-			SDL_assert(false); // Unsupported index type
-			break;
-		}
-
-		// Unmap the buffer after copying data
-		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-
-		// Store the number of indices
-		numIndices = indAcc.count;
-		LOG("EBO contains %u indices", numIndices);
-	}
-	else {
-		// If no indices exist, set numIndices to 0
-		numIndices = 0;
-		LOG("No indices found for the primitive");
-	}
+    glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+    LOG("EBO loaded with %u indices", numIndices);
 }
-
-
 
 void Mesh::CreateVAO() {
-	// Generate and bind the VAO
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
 
-	// Bind the VBO to provide vertex data
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    if (hasTexCoords) {
+        // position (3 floats), texcoord (2 floats)
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 
-	// Enable and configure the vertex attribute for position (layout location = 0)
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    else {
+        // position only (3 floats)
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    }
 
-	// Bind the EBO to provide index data (if available)
-	if (EBO) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	}
+    if (EBO) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    }
 
-	// Unbind the VAO to prevent accidental modifications
-	glBindVertexArray(0);
+    glBindVertexArray(0);
+    LOG("VAO created with ID: %u", VAO);
 }
 
+void Mesh::Render() {
 
-void Mesh::Render()
-{
 
-	glUseProgram(App->render->getProgram());
+    glUseProgram(App->render->getProgram());
 
-	glUniformMatrix4fv(2, 1, GL_TRUE, &modelMatrix[0][0]);
-	glUniformMatrix4fv(3, 1, GL_TRUE, &viewMatrix[0][0]);
-	glUniformMatrix4fv(4, 1, GL_TRUE, &projMatrix[0][0]);
+    glUniformMatrix4fv(2, 1, GL_TRUE, &modelMatrix[0][0]);
+    glUniformMatrix4fv(3, 1, GL_TRUE, &viewMatrix[0][0]);
+    glUniformMatrix4fv(4, 1, GL_TRUE, &projMatrix[0][0]);
 
-	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
-	glBindVertexArray(0);
+    glBindVertexArray(VAO);
 
+    if (materialIndex >= 0 && materialIndex < (int)App->model->GetModel()->GetTextures().size()) {
+        unsigned texId = App->model->GetModel()->GetTextures()[materialIndex];
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texId);
+    }
+
+    if (numIndices > 0) {
+        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
+    }
+    else {
+        glDrawArrays(GL_TRIANGLES, 0, numVertices);
+    }
+
+    glBindVertexArray(0);
 }
 
-
-
-void Mesh::Draw(const std::vector<unsigned>& textures)
-{
-	glUseProgram(App->render->getProgram());
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, textures[materialIndex]);
-	//glUniform1i(glGetUniformLocation(App->render->getProgram(), "diffuse"), 0);
-	glBindVertexArray(VAO);
-	//glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
-	glDrawArrays(GL_TRIANGLES, 0, numVertices);
-	glBindVertexArray(0);
+void Mesh::Draw(const std::vector<unsigned>&) {
+    glUseProgram(App->render->getProgram());
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, numVertices);
+    glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 void Mesh::SetMatrices(const float4x4& model, const float4x4& view, const float4x4& proj) {
-	modelMatrix = model;
-	viewMatrix = view;
-	projMatrix = proj;
+    modelMatrix = model;
+    viewMatrix = view;
+    projMatrix = proj;
 }
-
-
-

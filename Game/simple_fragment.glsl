@@ -4,11 +4,6 @@ out vec4 FragColor;
 
 uniform sampler2D texture_diffuse;
 
-void main()
-{
+void main() {
     FragColor = texture(texture_diffuse, TexCoords);
-
-
-
-
 }

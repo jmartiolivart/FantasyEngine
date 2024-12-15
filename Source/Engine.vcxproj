@@ -194,6 +194,7 @@
     <ClCompile Include="math-library\Math\TransformOps.cpp" />
     <ClCompile Include="math-library\Time\Clock.cpp" />
     <ClCompile Include="ModuleInput.cpp" />
+    <ClCompile Include="ModuleModel.cpp" />
     <ClCompile Include="ModuleOpenGL.cpp" />
     <ClCompile Include="ModuleTexture.cpp" />
     <ClCompile Include="ModuleWindow.cpp" />
@@ -280,6 +281,7 @@
     <ClInclude Include="math-library\Math\sse_mathfun.h" />
     <ClInclude Include="math-library\Math\TransformOps.h" />
     <ClInclude Include="math-library\Time\Clock.h" />
+    <ClInclude Include="ModuleModel.h" />
     <ClInclude Include="ModuleTexture.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Module.h" />

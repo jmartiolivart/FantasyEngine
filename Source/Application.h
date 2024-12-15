@@ -4,6 +4,8 @@
 #include "Globals.h"
 #include "Module.h"
 #include "ModuleWindow.h"
+#include "Model.h"
+#include "ModuleModel.h"
 
 class ModuleOpenGL;
 class ModuleWindow;
@@ -14,6 +16,7 @@ class ModuleEditor;
 class ModuleDebugDraw;
 class ModuleCamera;
 class ModuleTexture;
+class ModuleModel;
 
 class Application
 {
@@ -29,12 +32,14 @@ public:
     ModuleOpenGL* GetOpenGL() { return render; }
     ModuleWindow* GetWindow() { return window; }
     ModuleInput*  GetInput() { return input; }
+    ModuleModel* GetModel(){ return model;  }
 
     //Not sure about this being public
     ModuleOpenGL* render = nullptr;
     ModuleWindow* window = nullptr;
     ModuleCamera* camera = nullptr;
     ModuleTexture* texture = nullptr;
+    ModuleModel* model = nullptr;
 
 
 private:

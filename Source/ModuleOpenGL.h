@@ -1,44 +1,36 @@
 #pragma once
+
 #include "Module.h"
 #include "./math-library/Math/float4x4.h"
-#include "Model.h"
 
-class ModuleOpenGL : public Module
-{
+class ModuleOpenGL : public Module {
 public:
+    ModuleOpenGL();
+    ~ModuleOpenGL();
 
-	ModuleOpenGL();
-	~ModuleOpenGL();
+    bool Init() override;
+    update_status PreUpdate() override;
+    update_status Update() override;
+    update_status PostUpdate() override;
+    bool CleanUp() override;
+    void WindowResized(unsigned width, unsigned height);
 
-	bool Init();
-	bool CleanUp();
-
-	update_status PreUpdate();
-	update_status Update();
-	update_status PostUpdate();
-
-	void WindowResized(unsigned width, unsigned height);
-
-	const float4x4& GetModelMatrix();
-	const float4x4& GetViewMatrix();
-	const float4x4& GetProjectionMatrix();
-
-	int getProgram();
-
-	Model* GetModelLoaded() const;
+    const math::float4x4& GetModelMatrix() const;
+    const math::float4x4& GetViewMatrix() const;
+    const math::float4x4& GetProjectionMatrix() const;
+    int getProgram() const;
 
 private:
+    unsigned int program = 0;
+    int modelLoc = -1;
+    int viewLoc = -1;
+    int projLoc = -1;
+    int textureDiffuseLoc = -1;
 
-	void* context = nullptr;
-	int nrAttributes;
-	int program;
-	unsigned int VAO;
-	unsigned int VBO;
-	unsigned int EBO;
+    math::float4x4 model;
+    math::float4x4 view;
+    math::float4x4 proj;
 
-	float4x4 model;
-	float4x4 view;
-	float4x4 proj;
+    void* context = nullptr;
 
-	Model* modelLoaded;
 };
