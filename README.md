@@ -30,9 +30,9 @@
   ![Shift_NoShift](https://github.com/user-attachments/assets/841c2052-e0cf-41d5-97ac-6ccc0f6f6ad4)
 
   - Added Drag and drop gltf
-  
+  - Focus with "F" implemented
+
 ## Notes for the teacher:
 
 - Rotation works left/right but not upwards and backwards
-- Orbital no implemented
-- Focus not implemented
+- Orbital no implemente
