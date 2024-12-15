@@ -13,6 +13,9 @@ public:
 
     Model* GetModel();
 
+    void LoadModel(const std::string& filePath);
+
+
 private:
     Model* model;
 };

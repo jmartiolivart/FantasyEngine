@@ -1,8 +1,10 @@
-﻿#include "ModuleTexture.h"
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include "ModuleTexture.h"
 #include "Globals.h"
 #include <GL/glew.h>
 #include <string>
 #include "./DirectXTex-oct2024/DirectXTex/DirectXTex.h"
+#include "tinygltf-2.9.3/stb_image.h"
 
 
 ModuleTexture::ModuleTexture() {}
@@ -35,41 +37,39 @@ bool ModuleTexture::CleanUp() {
 }
 
 unsigned int ModuleTexture::Load(const std::string& uri) {
-    // Comprovar si la textura ja està carregada
+    // Comprovar si ja està carregada
     auto it = textureCache.find(uri);
     if (it != textureCache.end()) {
         LOG("Texture already loaded: %s", uri.c_str());
         return it->second;
     }
 
-    // Inicialitzar DirectXTex
-    DirectX::TexMetadata metadata;
-    DirectX::ScratchImage image;
-
-    HRESULT hr = DirectX::LoadFromWICFile(std::wstring(uri.begin(), uri.end()).c_str(), DirectX::WIC_FLAGS_NONE, &metadata, image);
-    if (FAILED(hr)) {
-        LOG("Error loading texture: %s", uri.c_str());
-        return 0;
-    }
-
-    GLuint textureID;
+    // Carregar la textura
+    unsigned int textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    GLenum internalFormat = GL_RGBA8;
-    GLenum format = GL_RGBA;
-    GLenum type = GL_UNSIGNED_BYTE;
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(uri.c_str(), &width, &height, &nrChannels, 0);
+    if (data) {
+        GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        LOG("Loaded texture: %s (ID: %u)", uri.c_str(), textureID);
+    }
+    else {
+        LOG("Failed to load texture: %s", uri.c_str());
+    }
+    stbi_image_free(data);
 
-    // Assignar textura a OpenGL
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, metadata.width, metadata.height, 0, format, type, image.GetPixels());
+    // Configurar paràmetres de textura
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
 
     textureCache[uri] = textureID;
-
-    LOG("Texture loaded successfully: %s (ID: %u)", uri.c_str(), textureID);
     return textureID;
 }
+

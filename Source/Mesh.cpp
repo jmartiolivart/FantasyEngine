@@ -142,6 +142,7 @@ void Mesh::CreateVAO() {
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     }
+
     else {
         // position only (3 floats)
         glEnableVertexAttribArray(0);
@@ -157,31 +158,57 @@ void Mesh::CreateVAO() {
 }
 
 void Mesh::Render() {
-
-
     glUseProgram(App->render->getProgram());
+    LOG("Shader program ID: %u", App->render->getProgram());
 
-    glUniformMatrix4fv(2, 1, GL_TRUE, &modelMatrix[0][0]);
-    glUniformMatrix4fv(3, 1, GL_TRUE, &viewMatrix[0][0]);
-    glUniformMatrix4fv(4, 1, GL_TRUE, &projMatrix[0][0]);
+    // Assignar les matrius de transformació
+    glUniformMatrix4fv(2, 1, GL_TRUE, &modelMatrix[0][0]); // Matriu Model
+    glUniformMatrix4fv(3, 1, GL_TRUE, &App->camera->LookAt()[0][0]); // Matriu View
+    glUniformMatrix4fv(4, 1, GL_TRUE, &App->camera->GetProjectionMatrix()[0][0]); // Matriu Projection
 
-    glBindVertexArray(VAO);
+    // Verificar el materialIndex
+    LOG("Rendering mesh with materialIndex: %d", materialIndex);
 
+    // Enllaçar la textura si n'hi ha
     if (materialIndex >= 0 && materialIndex < (int)App->model->GetModel()->GetTextures().size()) {
         unsigned texId = App->model->GetModel()->GetTextures()[materialIndex];
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texId);
+
+        int textureLoc = glGetUniformLocation(App->render->getProgram(), "texture_diffuse");
+        if (textureLoc != -1) {
+            glUniform1i(textureLoc, 0);
+            LOG("Bound texture ID: %u to texture_diffuse", texId);
+        }
+        else {
+            LOG("Could not find uniform 'texture_diffuse' in shader");
+        }
+    }
+    else {
+        LOG("No texture bound for materialIndex: %d", materialIndex);
     }
 
+    // Vincular VAO i dibuixar
+    glBindVertexArray(VAO);
+    LOG("Bound VAO: %u", VAO);
+
     if (numIndices > 0) {
+        LOG("Drawing elements: %d indices", numIndices);
         glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
     }
     else {
+        LOG("Drawing arrays: %d vertices", numVertices);
         glDrawArrays(GL_TRIANGLES, 0, numVertices);
     }
 
     glBindVertexArray(0);
+    glUseProgram(0);
 }
+
+
+
+
+
 
 void Mesh::Draw(const std::vector<unsigned>&) {
     glUseProgram(App->render->getProgram());

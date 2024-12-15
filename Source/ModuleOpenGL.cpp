@@ -9,14 +9,16 @@
 #include <string>
 #include "Mesh.h"
 #include "./math-library/Math/float4x4.h"
+#include "ModuleTexture.h"
 
 ModuleOpenGL::ModuleOpenGL() {}
 ModuleOpenGL::~ModuleOpenGL() {}
 
+
 bool ModuleOpenGL::Init() {
-    
     LOG("Initializing OpenGL...");
 
+    // Crear context OpenGL
     context = SDL_GL_CreateContext(App->GetWindow()->window);
     if (context == NULL) {
         LOG("Error creating OpenGL context: %s\n", SDL_GetError());
@@ -29,7 +31,7 @@ bool ModuleOpenGL::Init() {
         return false;
     }
 
-    // Configurar opcions d'OpenGL
+    // Configuració OpenGL
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -43,17 +45,63 @@ bool ModuleOpenGL::Init() {
         LOG("Error loading shaders");
         return false;
     }
+
     glUseProgram(this->program);
 
-    // Obtenir ubicacions de les matrius
-    this->modelLoc = glGetUniformLocation(this->program, "model");
-    this->viewLoc = glGetUniformLocation(this->program, "view");
-    this->projLoc = glGetUniformLocation(this->program, "proj");
+    // Obtenir ubicació del uniform "texture_diffuse"
     this->textureDiffuseLoc = glGetUniformLocation(this->program, "texture_diffuse");
+    if (this->textureDiffuseLoc == -1) {
+        LOG("Could not find uniform location for 'texture_diffuse'");
+    }
+
+    // Configuració del quad
+    float quadVertices[] = {
+        // Posició        // Coordenades de textura
+        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f, // Inferior esquerre
+         1.0f, -1.0f, 0.0f,  1.0f, 0.0f, // Inferior dret
+        -1.0f,  1.0f, 0.0f,  0.0f, 1.0f, // Superior esquerre
+         1.0f,  1.0f, 0.0f,  1.0f, 1.0f  // Superior dret
+    };
+
+    unsigned int quadIndices[] = {
+        0, 1, 2, // Triangle 1
+        1, 3, 2  // Triangle 2
+    };
+
+    // Crear VAO, VBO i EBO
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glGenBuffers(1, &quadEBO);
+
+    glBindVertexArray(quadVAO);
+
+    // Configurar VBO
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    // Configurar EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+
+    // Atribut de posició
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+
+    // Atribut de coordenades de textura
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glBindVertexArray(0);
+
+    // Carregar la textura
+    LOG("Texture ID loaded: %u", textureID);
 
     LOG("OpenGL initialized successfully.");
     return true;
 }
+
+
+
 
 update_status ModuleOpenGL::PreUpdate() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -61,7 +109,7 @@ update_status ModuleOpenGL::PreUpdate() {
 }
 
 update_status ModuleOpenGL::Update() {
-   
+    
     // Model to load
     Model* model = App->model->GetModel();
 
@@ -78,6 +126,7 @@ update_status ModuleOpenGL::Update() {
     return UPDATE_CONTINUE;
 }
 
+
 update_status ModuleOpenGL::PostUpdate() {
     SDL_GL_SwapWindow(App->GetWindow()->window);
     return UPDATE_CONTINUE;
@@ -85,9 +134,21 @@ update_status ModuleOpenGL::PostUpdate() {
 
 bool ModuleOpenGL::CleanUp() {
     LOG("Cleaning up OpenGL module...");
-    glDeleteProgram(this->program);
+
+    if (quadVAO) {
+        glDeleteVertexArrays(1, &quadVAO);
+        glDeleteBuffers(1, &quadVBO);
+        glDeleteBuffers(1, &quadEBO);
+    }
+
+    if (this->program) {
+        glDeleteProgram(this->program);
+    }
+
     return true;
 }
+
+
 
 void ModuleOpenGL::WindowResized(unsigned width, unsigned height) {
     glViewport(0, 0, width, height);

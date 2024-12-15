@@ -2,6 +2,7 @@
 
 #include "Module.h"
 #include "./math-library/Math/float4x4.h"
+#include <GL/glew.h>
 
 class ModuleOpenGL : public Module {
 public:
@@ -19,13 +20,16 @@ public:
     const math::float4x4& GetViewMatrix() const;
     const math::float4x4& GetProjectionMatrix() const;
     int getProgram() const;
+   
+    unsigned int textureID = 0;
+    GLuint quadVAO = 0, quadVBO = 0, quadEBO = 0; // Buffers per al quad
+    GLint textureDiffuseLoc = -1; // Uniform location per a la textura
 
 private:
     unsigned int program = 0;
     int modelLoc = -1;
     int viewLoc = -1;
     int projLoc = -1;
-    int textureDiffuseLoc = -1;
 
     math::float4x4 model;
     math::float4x4 view;

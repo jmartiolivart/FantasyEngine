@@ -37,20 +37,29 @@ void Model::Load(const char* assetFileName) {
     }
 
     LOG("Model loaded with %zu meshes", meshes.size());
+
+    // Afegir aquesta línia:
+    LoadMaterials(); // Carrega i associa les textures als materials
 }
 
 void Model::LoadMaterials() {
     LOG("Loading materials...");
+
     for (const auto& material : model.materials) {
         if (material.pbrMetallicRoughness.baseColorTexture.index >= 0) {
             const auto& texture = model.textures[material.pbrMetallicRoughness.baseColorTexture.index];
             const auto& image = model.images[texture.source];
-            unsigned int textureId = App->texture->Load(image.uri); 
-            textures.push_back(textureId);
+            unsigned int textureId = App->texture->Load(image.uri); // Carregar textura
+            textures.push_back(textureId); // Emmagatzemar l'ID
+            LOG("Material loaded texture: %s (ID: %u)", image.uri.c_str(), textureId);
         }
     }
 
+    // Afegir aquest log aquí:
+    LOG("Total textures loaded: %zu", textures.size());
 }
+
+
 
 void Model::LoadModelFile(const char* assetFileName) {
     tinygltf::TinyGLTF gltfContext;
