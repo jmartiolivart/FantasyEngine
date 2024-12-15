@@ -47,7 +47,6 @@ unsigned int ModuleTexture::Load(const std::string& uri) {
         return it->second;
     }
 
-    // Carregar la textura
     unsigned int textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -66,10 +65,7 @@ unsigned int ModuleTexture::Load(const std::string& uri) {
     }
     stbi_image_free(data);
 
-    // Configurar paràmetres de textura
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     textureCache[fullPath] = textureID;

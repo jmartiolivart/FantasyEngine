@@ -18,22 +18,19 @@ public:
 	float SetHoritzontalFov(float horitzontalFov);
 	void SetAspectRatio(float aspectRatio);
 	void SetPlaneDistances(float nearPlane, float farPlane);
-	float3 Position() const;
-	float3 Orientation() const;
-	float4x4 GetProjectionMatrix();
-	float4x4 GetViewMatrix();
 	void SetModelMatrix(const float4x4& matrix);
-	float4x4& GetModelMatrix();
-
-	inline Frustum* GetCamera() { return mainCamera; };
-
-	float3 GetPosition() const;
-	float3 GetUp() const;     
-
 	void SetPosition(const float3& position);
 
-	
-	
+	float4x4 GetProjectionMatrix();
+	float4x4 GetViewMatrix();
+	float4x4& GetModelMatrix();
+	float3 GetPosition() const;
+	float3 GetUp() const;
+	inline Frustum* GetCamera() { return mainCamera; };
+
+	float3 Position() const;
+	float3 Orientation() const;
+
 
 	/*----KEY INPUTS----*/
 	void GoUP();
@@ -65,10 +62,8 @@ private:
 	float3x3 rotationMatrix;
 	float4x4 modelMatrix;
 
-
 	//For focus to the model
 	float3 focusPoint = float3(0.0f, 0.0f, 0.0f); 
 	float defaultFocusDistance = 10.0f;           
 
-	
 };

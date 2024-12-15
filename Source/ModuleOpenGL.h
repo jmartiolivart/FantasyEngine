@@ -22,7 +22,6 @@ public:
     int getProgram() const;
    
     unsigned int textureID = 0;
-    GLuint quadVAO = 0, quadVBO = 0, quadEBO = 0; // Buffers per al quad
     GLint textureDiffuseLoc = -1; // Uniform location per a la textura
 
 private:

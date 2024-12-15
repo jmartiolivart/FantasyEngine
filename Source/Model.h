@@ -17,10 +17,14 @@ public:
 
     std::vector<Mesh*>& GetMeshes();
     std::vector<unsigned int>& GetTextures();
+
 private:
+
     void LoadModelFile(const char* assetFileName);
     bool modelLoaded = false;
     struct tinygltf::Model model;
+    
     std::vector<Mesh*> meshes;
     std::vector<unsigned int> textures;
+
 };

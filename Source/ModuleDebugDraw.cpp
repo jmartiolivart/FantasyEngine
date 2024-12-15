@@ -1,5 +1,5 @@
 #define DEBUG_DRAW_IMPLEMENTATION
-#include "DebugDraw.h"     // Debug Draw API. Notice that we need the DEBUG_DRAW_IMPLEMENTATION macro here!
+#include "DebugDraw.h"
 #include "GL/glew.h"
 #include <cassert>
 #include "./math-library/Math/MathAll.h"
@@ -13,11 +13,6 @@ class DDRenderInterfaceCoreGL final
     : public dd::RenderInterface
 {
 public:
-
-    //
-    // dd::RenderInterface overrides:
-    //
-
     void drawPointList(const dd::DrawVertex * points, int count, bool depthEnabled) override
     {
         assert(points != nullptr);

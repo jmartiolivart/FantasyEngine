@@ -18,7 +18,6 @@ ModuleOpenGL::~ModuleOpenGL() {}
 bool ModuleOpenGL::Init() {
     LOG("Initializing OpenGL...");
 
-    // Crear context OpenGL
     context = SDL_GL_CreateContext(App->GetWindow()->window);
     if (context == NULL) {
         LOG("Error creating OpenGL context: %s\n", SDL_GetError());
@@ -60,15 +59,13 @@ update_status ModuleOpenGL::PreUpdate() {
 }
 
 update_status ModuleOpenGL::Update() {
-    Model* model = App->model->GetModel();
 
-    // Assignar les matrius de vista i projecció
+    Model* model = App->model->GetModel();
     this->view = App->camera->LookAt();
     this->proj = App->camera->GetProjectionMatrix();
 
-    // Renderitzar tots els meshes
+    //Render the meshes
     for (Mesh* mesh : model->GetMeshes()) {
-        mesh->SetMatrices(math::float4x4::identity, this->view, this->proj); // Sense escales
         mesh->Render();
     }
 
@@ -85,12 +82,6 @@ update_status ModuleOpenGL::PostUpdate() {
 
 bool ModuleOpenGL::CleanUp() {
     LOG("Cleaning up OpenGL module...");
-
-    if (quadVAO) {
-        glDeleteVertexArrays(1, &quadVAO);
-        glDeleteBuffers(1, &quadVBO);
-        glDeleteBuffers(1, &quadEBO);
-    }
 
     if (this->program) {
         glDeleteProgram(this->program);

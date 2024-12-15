@@ -84,6 +84,7 @@ void ModuleCamera::GoRIGHT() {
 	App->camera->SetPosition(GetPosition() - right * cameraSpeed * 5.0f);
 }
 
+//Not working correctly
 void ModuleCamera::RotateUpwards() {
 	
 	//Pitch angle
@@ -94,6 +95,7 @@ void ModuleCamera::RotateUpwards() {
 
 }
 
+//Not working correctly
 void ModuleCamera::RotateBackwards(){
 
 	//Pitch angle
@@ -107,13 +109,11 @@ void ModuleCamera::RotateBackwards(){
 
 void ModuleCamera::RotateLeft() {
 
-	//Yaw angle
 	const float yawAngle = -0.01f;
 
 	// Create rotation matrix
 	float cosTheta = cos(yawAngle);
 	float sinTheta = sin(yawAngle);
-
 	float3x3 rotationMatrix = {
 		{cosTheta, 0.0f, sinTheta},
 		{0.0f, 1.0f, 0.0f},
@@ -127,7 +127,6 @@ void ModuleCamera::RotateLeft() {
 
 void ModuleCamera::RotateRight() {
 
-	//Yaw angle
 	const float yawAngle = 0.01f;
 
 	// Create rotation matrix

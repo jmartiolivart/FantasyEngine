@@ -14,7 +14,7 @@
 void Mesh::Load(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const tinygltf::Primitive& primitive) {
     LOG("Loading mesh...");
 
-    // Posicions
+    // Positions
     const auto itPos = primitive.attributes.find("POSITION");
     if (itPos == primitive.attributes.end()) {
         LOG("Warning: No position attribute found");
@@ -30,7 +30,7 @@ void Mesh::Load(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const 
     numVertices = (unsigned int)posAcc.count;
     size_t posStride = posView.byteStride ? posView.byteStride : sizeof(float) * 3;
 
-    // Coordenades de textura
+    // Texture Coordinates
     const auto itTex = primitive.attributes.find("TEXCOORD_0");
     bool hasTex = (itTex != primitive.attributes.end());
 
@@ -48,7 +48,7 @@ void Mesh::Load(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const 
         hasTexCoords = true;
     }
 
-    // Crear i omplir el VBO
+    // Create and load VBO
     size_t vboSize = sizeof(float) * 3 * numVertices + (hasTexCoords ? sizeof(float) * 2 * numVertices : 0);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -73,12 +73,9 @@ void Mesh::Load(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const 
         if (hasTexCoords) {
             float u = *(float*)(currentTex);
             float v = *(float*)(currentTex + sizeof(float));
-            v = 1.0f - v; // Inverteix l'eix Y per corregir les coordenades de textura
-
+            v = 1.0f - v; //  Invert Y axis to correct the texture coordinates
             *ptr++ = u;
             *ptr++ = v;
-
-
             currentTex += texStride;
         }
     }
@@ -107,6 +104,7 @@ void Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Mesh& mesh, con
     unsigned int* ptr = (unsigned int*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
     SDL_assert(ptr != nullptr);
 
+    //Types of components calculation if: UNSIGNED INT, UNSIGNED SHORT or UNSIGNED BYTE
     switch (indAcc.componentType) {
     case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
         const uint32_t* src = (const uint32_t*)buffer;
@@ -159,12 +157,11 @@ void Mesh::CreateVAO() {
     glBindVertexArray(0);
     LOG("VAO created with ID: %u", VAO);
 }
+
 void Mesh::Render() {
+
     glUseProgram(App->render->getProgram());
     LOG("Shader program ID: %u", App->render->getProgram());
-
-    
-    
 
     glUniformMatrix4fv(2, 1, GL_TRUE, &App->camera->GetModelMatrix()[0][0]);
     glUniformMatrix4fv(3, 1, GL_TRUE, &App->camera->LookAt()[0][0]); 
@@ -209,17 +206,6 @@ void Mesh::Render() {
     glUseProgram(0);
 }
 
-
-
-
-void Mesh::Draw(const std::vector<unsigned>&) {
-    glUseProgram(App->render->getProgram());
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, numVertices);
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
-
 void Mesh::SetMatrices(const float4x4& model, const float4x4& view, const float4x4& proj) {
     modelMatrix = model;
     viewMatrix = view;
@@ -233,3 +219,12 @@ void Mesh::SetModelMatrix(const math::float4x4& transform) {
     LOG("SetModelMatrix -> Assigned ModelMatrix: [%f, %f, %f]",
         modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2]);
 }
+
+// Old function
+//void Mesh::Draw(const std::vector<unsigned>&) {
+//    glUseProgram(App->render->getProgram());
+//    glBindVertexArray(VAO);
+//    glDrawArrays(GL_TRIANGLES, 0, numVertices);
+//    glBindVertexArray(0);
+//    glUseProgram(0);
+//}
