@@ -45,11 +45,16 @@ public:
 	void RotateRight();
 	void FocusModel();
 
+
 	
 	/*----MOUSE INPUTS----*/
 	void DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
 	void RotateCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
 	void Zoom(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
+	void Zoom(int scrollDirection);
+	void Orbital(int movmentX, int movemntY);
+
+
 
 
 	float cameraSpeed = 0.01f;

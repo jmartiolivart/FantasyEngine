@@ -20,6 +20,7 @@ private:
 
 	bool middleMouseDown;
 	bool rightMouseDown;
+	bool leftMouseDown;
 	bool augmentedSpeed;
 	int prevMouseX;
 	int prevMouseY;

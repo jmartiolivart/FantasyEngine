@@ -47,11 +47,13 @@ update_status ModuleInput::Update()
         }
         case SDL_QUIT:
             return UPDATE_STOP;
+        
         case SDL_WINDOWEVENT:
             if (sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED || sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                 App->GetOpenGL()->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
             // Update the FOV
             break;
+        
         case SDL_KEYDOWN: // Key is press
 
             if (sdlEvent.key.keysym.sym == SDLK_RSHIFT || sdlEvent.key.keysym.sym == SDLK_LSHIFT) {
@@ -79,6 +81,9 @@ update_status ModuleInput::Update()
             if (sdlEvent.button.button == SDL_BUTTON_RIGHT) {
                 rightMouseDown = true;
             }
+            if (sdlEvent.button.button == SDL_BUTTON_LEFT) {
+                leftMouseDown = true;
+            }
             break;
 
         case SDL_MOUSEBUTTONUP:
@@ -87,6 +92,9 @@ update_status ModuleInput::Update()
             }
             if (sdlEvent.button.button == SDL_BUTTON_RIGHT) {
                 rightMouseDown = false;
+            }
+            if (sdlEvent.button.button == SDL_BUTTON_LEFT) {
+                leftMouseDown = false;
             }
 
             break;
@@ -109,22 +117,27 @@ update_status ModuleInput::Update()
             prevMouseY = currentMouseY;
 
             break;
+
+        case SDL_MOUSEWHEEL:
+
+            App->camera->Zoom(sdlEvent.wheel.y);
+            break;
         }
     }
 
     keyboard = SDL_GetKeyboardState(NULL);
 
     // Movement controls
-    if (keyboard[SDL_SCANCODE_W]) {
+    if (keyboard[SDL_SCANCODE_W] && rightMouseDown) {
         App->camera->GoSTRAIGHT();
     }
-    if (keyboard[SDL_SCANCODE_S]) {
+    if (keyboard[SDL_SCANCODE_S] && rightMouseDown) {
         App->camera->GoBACKWARDS();
     }
-    if (keyboard[SDL_SCANCODE_A]) {
+    if (keyboard[SDL_SCANCODE_A] && rightMouseDown) {
         App->camera->GoLEFT();
     }
-    if (keyboard[SDL_SCANCODE_D]) {
+    if (keyboard[SDL_SCANCODE_D] && rightMouseDown) {
         App->camera->GoRIGHT();
     }
     if (keyboard[SDL_SCANCODE_Q]) {
@@ -148,6 +161,15 @@ update_status ModuleInput::Update()
     }
     if (keyboard[SDL_SCANCODE_RIGHT]) {
         App->camera->RotateRight();
+    }
+    //Orbital
+    if (keyboard[SDL_SCANCODE_LALT] && leftMouseDown) {
+
+        int deltaX = currentMouseX - prevMouseX;
+        int deltaY = prevMouseY - currentMouseY; // Invertim per l'eix vertical del ratolí
+        App->camera->Orbital(deltaX, deltaY);
+        prevMouseX = currentMouseX;
+        prevMouseY = currentMouseY;
     }
 
 

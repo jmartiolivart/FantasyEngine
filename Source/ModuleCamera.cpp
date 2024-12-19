@@ -32,7 +32,7 @@ bool ModuleCamera::Init() {
 	mainCamera->horizontalFov = SetHoritzontalFov(mainCamera->verticalFov);
 
 
-	SetPosition(GetPosition() + float3(0.0f, -1.0f, 5.0f));
+	SetPosition(GetPosition() + float3(0.0f, 1.0f, 6.0f));
 
 	return true;
 
@@ -160,7 +160,7 @@ void ModuleCamera::RotateRight() {
 void ModuleCamera::DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY)
 {
 	int deltaX = currentMouseX - oldMouseX;
-	int deltaY = currentMouseY - oldMouseY;
+	int deltaY = oldMouseY - currentMouseY;
 
 	// Calculate the right vector
 	float3 right = mainCamera->up.Cross(mainCamera->front).Normalized();
@@ -201,11 +201,21 @@ void ModuleCamera::Zoom(int oldMouseX, int oldMouseY, int currentMouseX, int cur
 	if (deltaX > 0) {
 		GoSTRAIGHT();
 	}
-
 	//Zoom out
 	if (deltaX < 0) {
 		GoBACKWARDS();
 	}
+}
+
+void ModuleCamera::Zoom(int scrollDirection) {
+
+	if (scrollDirection > 0) {
+		GoSTRAIGHT();
+	}
+	if (scrollDirection < 0) {
+		GoBACKWARDS();
+	}
+
 }
 
 void ModuleCamera::FocusModel()
@@ -215,6 +225,32 @@ void ModuleCamera::FocusModel()
 	mainCamera->pos = focusPoint - (mainCamera->front * defaultFocusDistance);
 	mainCamera->up = float3(0.0f, 1.0f, 0.0f);
 }
+
+void ModuleCamera::Orbital(int deltaX, int deltaY) {
+	// Control de sensibilitat
+	const float rotationSpeed = 0.005f;
+
+	// Distància de la càmera al punt de focus
+	float3 focusDirection = mainCamera->pos - focusPoint;
+	float distance = focusDirection.Length();
+
+	// --- Rotació horitzontal al voltant de l'eix Y ---
+	Quat horizontalRotation = Quat::RotateY(-deltaX * rotationSpeed);
+	focusDirection = horizontalRotation * focusDirection;
+
+	// --- Rotació vertical al voltant de l'eix X ---
+	float3 right = float3(0, 1, 0).Cross(focusDirection).Normalized();
+	Quat verticalRotation = Quat::RotateAxisAngle(right, deltaY * rotationSpeed);
+	focusDirection = verticalRotation * focusDirection;
+
+	// --- Nova posició de la càmera ---
+	mainCamera->pos = focusPoint + focusDirection;
+
+	// --- Actualització dels vectors ---
+	mainCamera->front = (focusPoint - mainCamera->pos).Normalized();
+	mainCamera->up = right.Cross(mainCamera->front).Normalized();
+}
+
 
 
 float ModuleCamera::SetHoritzontalFov(float verticalFov) {
