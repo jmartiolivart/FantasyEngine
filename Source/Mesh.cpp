@@ -161,13 +161,13 @@ void Mesh::CreateVAO() {
 void Mesh::Render() {
 
     glUseProgram(App->render->getProgram());
-    LOG("Shader program ID: %u", App->render->getProgram());
+    //LOG("Shader program ID: %u", App->render->getProgram());
 
     glUniformMatrix4fv(2, 1, GL_TRUE, &App->camera->GetModelMatrix()[0][0]);
     glUniformMatrix4fv(3, 1, GL_TRUE, &App->camera->LookAt()[0][0]); 
     glUniformMatrix4fv(4, 1, GL_TRUE, &App->camera->GetProjectionMatrix()[0][0]);
 
-    LOG("Rendering mesh with materialIndex: %d", materialIndex);
+    //LOG("Rendering mesh with materialIndex: %d", materialIndex);
 
     // Enllaçar la textura si n'hi ha
     if (materialIndex >= 0 && materialIndex < (int)App->model->GetModel()->GetTextures().size()) {
@@ -178,27 +178,27 @@ void Mesh::Render() {
         int textureLoc = glGetUniformLocation(App->render->getProgram(), "texture_diffuse");
         if (textureLoc != -1) {
             glUniform1i(textureLoc, 0);
-            LOG("Bound texture ID: %u to texture_diffuse", texId);
+            //LOG("Bound texture ID: %u to texture_diffuse", texId);
         }
         else {
-            LOG("Could not find uniform 'texture_diffuse' in shader");
+            //LOG("Could not find uniform 'texture_diffuse' in shader");
         }
     }
     else {
         LOG("No texture bound for materialIndex: %d", materialIndex);
     }
 
-    LOG("Mesh VAO: %u, Vertices: %u, Indices: %u", VAO, numVertices, numIndices);
+    //LOG("Mesh VAO: %u, Vertices: %u, Indices: %u", VAO, numVertices, numIndices);
 
     glBindVertexArray(VAO);
-    LOG("Bound VAO: %u", VAO);
+    //LOG("Bound VAO: %u", VAO);
 
     if (numIndices > 0) {
-        LOG("Drawing elements: %d indices", numIndices);
+        //LOG("Drawing elements: %d indices", numIndices);
         glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
     }
     else {
-        LOG("Drawing arrays: %d vertices", numVertices);
+        //LOG("Drawing arrays: %d vertices", numVertices);
         glDrawArrays(GL_TRIANGLES, 0, numVertices);
     }
 

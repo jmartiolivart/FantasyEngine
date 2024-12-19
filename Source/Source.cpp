@@ -22,9 +22,7 @@ bool ModuleOpenGL::Init() {
     if (!context) {
 
         LOG("Error creant context OpenGL: %s", SDL_GetError());
-
         return false;
-
     }
 
    // Inicialitzar GLEW

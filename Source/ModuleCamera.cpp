@@ -40,18 +40,19 @@ bool ModuleCamera::Init() {
 
 
 float4x4 ModuleCamera::LookAt() {
-	float3 z = (mainCamera->pos - (mainCamera->pos + mainCamera->front)).Normalized();
+	float3 z = (-mainCamera->front).Normalized();
 	float3 x = mainCamera->up.Cross(z).Normalized();
-	float3 y = z.Cross(x);
-
+	float3 y = z.Cross(x);	
 
 	return float4x4(
-		x.x, x.y, x.z, -x.Dot(mainCamera->pos), 
-		y.x, y.y, y.z,  y.Dot(mainCamera->pos),
+		x.x, x.y, x.z, -x.Dot(mainCamera->pos),
+		y.x, y.y, y.z, -y.Dot(mainCamera->pos),
 		z.x, z.y, z.z, -z.Dot(mainCamera->pos),
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
 }
+
+
 
 void ModuleCamera::GoUP() {
 	App->camera->SetPosition(GetPosition() + float3(0.0f, -cameraSpeed * 5.0f, 0.0f));
@@ -87,24 +88,37 @@ void ModuleCamera::GoRIGHT() {
 //Not working correctly
 void ModuleCamera::RotateUpwards() {
 	
-	//Pitch angle
 	const float pitchAngle = 0.01f;
+	float3 right = mainCamera->front.Cross(mainCamera->up).Normalized();
 
-	Quat rotationQuat = Quat::RotateAxisAngle(mainCamera->WorldRight().Normalized(), pitchAngle);
-	mainCamera->Transform(rotationQuat);
+	float3 newFront = mainCamera->front * cos(pitchAngle) + mainCamera->up * sin(pitchAngle);
+	newFront.Normalize();
+
+	float3 newUp = right.Cross(newFront);
+	newUp.Normalize();
+
+	mainCamera->front = newFront;
+	mainCamera->up = newUp;
+
+}
+
+void ModuleCamera::RotateBackwards() {
+    
+    const float pitchAngle = -0.01f;
+
+    float3 right = mainCamera->front.Cross(mainCamera->up).Normalized();
+    
+	float3 newFront = mainCamera->front * cos(pitchAngle) + mainCamera->up * sin(pitchAngle);
+    newFront.Normalize();
+
+    float3 newUp = right.Cross(newFront);
+    newUp.Normalize();
+
+    mainCamera->front = newFront;
+    mainCamera->up = newUp;
 
 }
 
-//Not working correctly
-void ModuleCamera::RotateBackwards(){
-
-	//Pitch angle
-	const float pitchAngle = -0.01f;
-
-	Quat rotationQuat = Quat::RotateAxisAngle(mainCamera->WorldRight().Normalized(), pitchAngle);
-	mainCamera->Transform(rotationQuat);
-
-}
 
 
 void ModuleCamera::RotateLeft() {
