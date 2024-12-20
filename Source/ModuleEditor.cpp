@@ -16,10 +16,8 @@
 #endif
 
 
-const char* glsl_version = "#version 460";
-char buf[20];
-float f = 20.0f;
 static std::string logText;
+static std::string tinyGLTFLogText;
 
 ModuleEditor::ModuleEditor() {}
 
@@ -74,6 +72,22 @@ update_status ModuleEditor::PreUpdate() {
             logText += getLogBuffer();
         }
         ImGui::InputTextMultiline("Log", (char*)logText.c_str(), logText.size(), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 10), ImGuiInputTextFlags_ReadOnly);
+    }
+
+
+
+    if (ImGui::MenuItem("Geometry loading with TinyGLTF")) {
+        showGeometryLogs = !showGeometryLogs;
+    }
+
+    if (showGeometryLogs) {
+        ImGui::Begin("tinyGLTF Logs");
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "tinyGLTF Logs:");
+        if (hasNewTinyGLTFLogs()) {
+            tinyGLTFLogText += getTinyGLTFLogBuffer();
+        }
+        ImGui::InputTextMultiline("##tinyGLTFLog", (char*)tinyGLTFLogText.c_str(), tinyGLTFLogText.size(), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 10), ImGuiInputTextFlags_ReadOnly);
+        ImGui::End();
     }
 
     // FPS and MS using ImGui's DeltaTime
@@ -169,10 +183,7 @@ update_status ModuleEditor::PreUpdate() {
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("Restart to apply");
     }
-    
-
-
-
+   
 
     ImGui::End();
 

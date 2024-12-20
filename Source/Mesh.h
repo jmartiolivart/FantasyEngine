@@ -6,13 +6,13 @@
 class Mesh {
 public:
     void Load(const struct tinygltf::Model& model, const struct tinygltf::Mesh& mesh, const struct tinygltf::Primitive& primitive);
+    void LoadPositions(const tinygltf::Model& model, const tinygltf::Primitive& primitive, const unsigned char*& bufferPos, size_t& posStride);
+    void LoadTextures(const tinygltf::Model& model, const tinygltf::Primitive& primitive, const unsigned char*& bufferTexCoord, size_t& texStride);
     void LoadEBO(const struct tinygltf::Model& model, const struct tinygltf::Mesh& mesh, const struct tinygltf::Primitive& primitive);
     void CreateVAO();
     void Render();
-    void Draw(const std::vector<unsigned>& textures);
     void SetMatrices(const float4x4& model, const float4x4& view, const float4x4& proj);
     void SetModelMatrix(const math::float4x4& transform);
-    const math::float4x4& GetModelMatrix() const; // Getter públic
 
 
 
@@ -28,6 +28,4 @@ private:
     float4x4 viewMatrix;
     float4x4 projMatrix;
 
-
-    bool prova = true;
 };

@@ -162,14 +162,16 @@ update_status ModuleInput::Update()
     if (keyboard[SDL_SCANCODE_RIGHT]) {
         App->camera->RotateRight();
     }
-    //Orbital
+    //TODO: Orbital
     if (keyboard[SDL_SCANCODE_LALT] && leftMouseDown) {
 
+        /*
         int deltaX = currentMouseX - prevMouseX;
-        int deltaY = prevMouseY - currentMouseY; // Invertim per l'eix vertical del ratolí
+        int deltaY = prevMouseY - currentMouseY;
         App->camera->Orbital(deltaX, deltaY);
         prevMouseX = currentMouseX;
         prevMouseY = currentMouseY;
+        */
     }
 
 

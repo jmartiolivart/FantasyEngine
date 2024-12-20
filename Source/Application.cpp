@@ -9,10 +9,6 @@
 #include "ModuleTexture.h";
 #include "ModuleModel.h"
 
-
-
-
-
 using namespace std;
 
 Application::Application()

@@ -226,32 +226,10 @@ void ModuleCamera::FocusModel()
 	mainCamera->up = float3(0.0f, 1.0f, 0.0f);
 }
 
+//TODO: Orbital
 void ModuleCamera::Orbital(int deltaX, int deltaY) {
-	// Control de sensibilitat
-	const float rotationSpeed = 0.005f;
-
-	// Distància de la càmera al punt de focus
-	float3 focusDirection = mainCamera->pos - focusPoint;
-	float distance = focusDirection.Length();
-
-	// --- Rotació horitzontal al voltant de l'eix Y ---
-	Quat horizontalRotation = Quat::RotateY(-deltaX * rotationSpeed);
-	focusDirection = horizontalRotation * focusDirection;
-
-	// --- Rotació vertical al voltant de l'eix X ---
-	float3 right = float3(0, 1, 0).Cross(focusDirection).Normalized();
-	Quat verticalRotation = Quat::RotateAxisAngle(right, deltaY * rotationSpeed);
-	focusDirection = verticalRotation * focusDirection;
-
-	// --- Nova posició de la càmera ---
-	mainCamera->pos = focusPoint + focusDirection;
-
-	// --- Actualització dels vectors ---
-	mainCamera->front = (focusPoint - mainCamera->pos).Normalized();
-	mainCamera->up = right.Cross(mainCamera->front).Normalized();
+	
 }
-
-
 
 float ModuleCamera::SetHoritzontalFov(float verticalFov) {
 	// Change the horizontal FOV to meet the new aspect ratio.

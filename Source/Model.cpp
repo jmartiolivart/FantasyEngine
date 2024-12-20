@@ -8,6 +8,7 @@
 #include "Mesh.h"
 #include "Application.h"
 #include "ModuleTexture.h"
+#include "Log.h"
 
 Model::Model() {}
 
@@ -23,14 +24,10 @@ Model::~Model() {
 }
 
 void Model::Load(const char* assetFileName) {
+    
     LoadModelFile(assetFileName);
-    LOG("Creating meshes for model...");
-
-    // Create scale matrix for default house uploaded
-    math::float4x4 scaleMatrix = math::float4x4::identity;
-    scaleMatrix[0][0] = 100.0f; 
-    scaleMatrix[1][1] = 100.0f; 
-    scaleMatrix[2][2] = 100.0f; 
+    
+    LOG_TINYGLTF("Creating meshes for model...");
 
     // Apply scale and meshes
     for (const auto& srcMesh : model.meshes) {
@@ -39,11 +36,11 @@ void Model::Load(const char* assetFileName) {
             mesh->Load(model, srcMesh, primitive);
             mesh->LoadEBO(model, srcMesh, primitive);
             mesh->CreateVAO();
-            mesh->SetModelMatrix(scaleMatrix);
             meshes.push_back(mesh);
         }
+        LOG_TINYGLTF("Mesh -> %s loaded correctly!\n\n", srcMesh.name.c_str());
     }
-    LOG("Model loaded with %zu meshes", meshes.size());
+    LOG_TINYGLTF("Model loaded with %zu meshes", meshes.size());
     LoadMaterials();
 }
 
@@ -68,16 +65,18 @@ void Model::LoadMaterials() {
 
 
 void Model::LoadModelFile(const char* assetFileName) {
+    
     tinygltf::TinyGLTF gltfContext;
     std::string error, warning;
-    LOG("Loading model file: %s", assetFileName);
+    
+    LOG_TINYGLTF("Loading model file: %s", assetFileName);
 
     bool loadOk = gltfContext.LoadASCIIFromFile(&model, &error, &warning, assetFileName);
     if (!loadOk) {
-        LOG("Error loading %s: %s", assetFileName, error.c_str());
+        LOG_TINYGLTF("Error loading %s: %s", assetFileName, error.c_str());
     }
     else {
-        LOG("Model file loaded successfully");
+        LOG_TINYGLTF("Model file loaded successfully");
     }
 }
 

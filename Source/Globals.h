@@ -1,23 +1,25 @@
-	#pragma once
-	#include <windows.h>
-	#include <stdio.h>
-	#define NOMINMAX
-	
+#pragma once
+#include <windows.h>
+#include <stdio.h>
+#define NOMINMAX
 
-	#define LOG(format, ...) log(__FILE__, __LINE__, format, __VA_ARGS__);
 
-	void log(const char file[], int line, const char* format, ...);
+#define LOG(format, ...) log(__FILE__, __LINE__, format, __VA_ARGS__);
+#define LOG_TINYGLTF(format, ...) logTinyGLTF(__FILE__, __LINE__, format, __VA_ARGS__)
 
-	enum update_status
-	{
-		UPDATE_CONTINUE = 1,
-		UPDATE_STOP,
-		UPDATE_ERROR
-	};
 
-	// Configuration -----------
-	#define SCREEN_WIDTH 640
-	#define SCREEN_HEIGHT 480
-	#define FULLSCREEN false
-	#define VSYNC true
-	#define TITLE "Fantasy Engine"
+void log(const char file[], int line, const char* format, ...);
+
+enum update_status
+{
+	UPDATE_CONTINUE = 1,
+	UPDATE_STOP,
+	UPDATE_ERROR
+};
+
+// Configuration -----------
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+#define FULLSCREEN false
+#define VSYNC true
+#define TITLE "Fantasy Engine"
