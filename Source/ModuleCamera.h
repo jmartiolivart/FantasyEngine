@@ -46,6 +46,7 @@ public:
 	void FocusModel();
 
 
+
 	
 	/*----MOUSE INPUTS----*/
 	void DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);

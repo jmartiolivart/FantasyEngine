@@ -208,9 +208,9 @@ void Mesh::Render() {
     glUseProgram(App->render->getProgram());
     //LOG("Shader program ID: %u", App->render->getProgram());
 
-    glUniformMatrix4fv(2, 1, GL_TRUE, &App->camera->GetModelMatrix()[0][0]);
-    glUniformMatrix4fv(3, 1, GL_TRUE, &App->camera->LookAt()[0][0]); 
-    glUniformMatrix4fv(4, 1, GL_TRUE, &App->camera->GetProjectionMatrix()[0][0]);
+    glUniformMatrix4fv(2, 1, GL_TRUE, &App->camera->GetModelMatrix()[0][0]); //MODEL
+    glUniformMatrix4fv(3, 1, GL_TRUE, &App->camera->LookAt()[0][0]); //VIEW
+    glUniformMatrix4fv(4, 1, GL_TRUE, &App->camera->GetProjectionMatrix()[0][0]); //PROJECTION
 
     //LOG("Rendering mesh with materialIndex: %d", materialIndex);
 
@@ -257,10 +257,4 @@ void Mesh::SetMatrices(const float4x4& model, const float4x4& view, const float4
     projMatrix = proj;
     LOG("Mesh ModelMatrix position: %f, %f, %f", modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
 
-}
-
-void Mesh::SetModelMatrix(const math::float4x4& transform) {
-    modelMatrix = transform; // Assigna directament la nova matriu
-    LOG("SetModelMatrix -> Assigned ModelMatrix: [%f, %f, %f]",
-        modelMatrix[0][0], modelMatrix[1][1], modelMatrix[2][2]);
 }

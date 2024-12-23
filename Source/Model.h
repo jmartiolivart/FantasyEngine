@@ -18,6 +18,10 @@ public:
     std::vector<Mesh*>& GetMeshes();
     std::vector<unsigned int>& GetTextures();
 
+    
+
+    
+
 private:
 
     void LoadModelFile(const char* assetFileName);
@@ -27,4 +31,5 @@ private:
     std::vector<Mesh*> meshes;
     std::vector<unsigned int> textures;
 
+    void setModelScaleFactor();
 };

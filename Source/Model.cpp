@@ -7,6 +7,7 @@
 #include "Globals.h"
 #include "Mesh.h"
 #include "Application.h"
+#include "ModuleCamera.h"
 #include "ModuleTexture.h"
 #include "Log.h"
 
@@ -26,9 +27,10 @@ Model::~Model() {
 void Model::Load(const char* assetFileName) {
     
     LoadModelFile(assetFileName);
-    
     LOG_TINYGLTF("Creating meshes for model...");
 
+    setModelScaleFactor();
+   
     // Apply scale and meshes
     for (const auto& srcMesh : model.meshes) {
         for (const auto& primitive : srcMesh.primitives) {
@@ -86,4 +88,28 @@ std::vector<Mesh*>& Model::GetMeshes() {
 
 std::vector<unsigned int>& Model::GetTextures() {
     return textures;
+}
+
+void Model::setModelScaleFactor() {
+    
+    float maxScaleFactor = 1.0f;
+    
+    for (const auto& node : model.nodes) {
+        if (node.scale.size() == 3) {
+            float scaleX = node.scale[0];
+            float scaleY = node.scale[1];
+            float scaleZ = node.scale[2];
+            float scaleFactor = std::max(scaleX, std::max(scaleY, scaleZ));;
+            if (scaleFactor > maxScaleFactor) {
+                maxScaleFactor = scaleFactor;
+            }
+        }
+    }
+    
+    math::float4x4 scaleMatrix = math::float4x4::identity;
+    scaleMatrix[0][0] = maxScaleFactor;
+    scaleMatrix[1][1] = maxScaleFactor;
+    scaleMatrix[2][2] = maxScaleFactor;
+    App->camera->SetModelMatrix(scaleMatrix);
+
 }
