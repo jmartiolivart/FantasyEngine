@@ -102,16 +102,21 @@ update_status ModuleInput::Update()
 
             SDL_GetMouseState(&currentMouseX, &currentMouseY);
 
-            if (middleMouseDown) {
-                App->camera->DragCamera(prevMouseX, prevMouseY, currentMouseX, currentMouseY);
+            deltaX = currentMouseX - prevMouseX;
+            deltaY = prevMouseY - currentMouseY;
 
+            if (middleMouseDown) {
+                App->camera->DragCamera(deltaX, deltaY);
+            }
+            if (leftMouseDown && (SDL_GetModState() & KMOD_LALT)) {
+                App->camera->Orbital(deltaX, deltaY);
             }
             if (rightMouseDown && (SDL_GetModState() & KMOD_LALT || SDL_GetModState() & KMOD_RALT)) {
-                App->camera->Zoom(prevMouseX, prevMouseY, currentMouseX, currentMouseY);
+                App->camera->Zoom(deltaX, deltaY);
 
             }
             else if (rightMouseDown) {
-                App->camera->RotateCamera(prevMouseX, prevMouseY, currentMouseX, currentMouseY);
+                App->camera->RotateCamera(deltaX, deltaY);
             }
             prevMouseX = currentMouseX;
             prevMouseY = currentMouseY;
@@ -150,7 +155,7 @@ update_status ModuleInput::Update()
         App->camera->FocusModel();
     }
     // Rotation controls
-    if (keyboard[SDL_SCANCODE_UP]) {
+   if (keyboard[SDL_SCANCODE_UP]) {
         App->camera->RotateUpwards();
     }
     if (keyboard[SDL_SCANCODE_DOWN]) {
@@ -162,17 +167,7 @@ update_status ModuleInput::Update()
     if (keyboard[SDL_SCANCODE_RIGHT]) {
         App->camera->RotateRight();
     }
-    //TODO: Orbital
-    if (keyboard[SDL_SCANCODE_LALT] && leftMouseDown) {
-
-        /*
-        int deltaX = currentMouseX - prevMouseX;
-        int deltaY = prevMouseY - currentMouseY;
-        App->camera->Orbital(deltaX, deltaY);
-        prevMouseX = currentMouseX;
-        prevMouseY = currentMouseY;
-        */
-    }
+    
 
 
 

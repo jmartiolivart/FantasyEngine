@@ -26,4 +26,6 @@ private:
 	int prevMouseY;
 	int currentMouseX;
 	int currentMouseY;
+	int deltaX;
+	int deltaY;
 };

@@ -85,7 +85,6 @@ void ModuleCamera::GoRIGHT() {
 	App->camera->SetPosition(GetPosition() - right * cameraSpeed * 5.0f);
 }
 
-//Not working correctly
 void ModuleCamera::RotateUpwards() {
 	
 	const float pitchAngle = 0.01f;
@@ -157,11 +156,9 @@ void ModuleCamera::RotateRight() {
 
 }
 
-void ModuleCamera::DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY)
+void ModuleCamera::DragCamera(int deltaX, int deltaY)
 {
-	int deltaX = currentMouseX - oldMouseX;
-	int deltaY = oldMouseY - currentMouseY;
-
+	
 	// Calculate the right vector
 	float3 right = mainCamera->up.Cross(mainCamera->front).Normalized();
 
@@ -170,10 +167,7 @@ void ModuleCamera::DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, i
 	mainCamera->pos -= mainCamera->up * deltaY * cameraSpeed;
 }
 
-void ModuleCamera::RotateCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY) {
-	
-	int deltaX = currentMouseX - oldMouseX;
-	int deltaY = currentMouseY - oldMouseY;
+void ModuleCamera::RotateCamera(int deltaX, int deltaY) {
 
 	// Use RotateLeft/RotateRight for yaw
 	if (deltaX > 0) {
@@ -184,19 +178,16 @@ void ModuleCamera::RotateCamera(int oldMouseX, int oldMouseY, int currentMouseX,
 	}
 
 	// Use RotateUpwards/RotateBackwards for pitch
-	if (deltaY > 0) {
+	if (deltaY < 0) {
 		RotateBackwards();
 	}
-	else if (deltaY < 0) {
+	else if (deltaY > 0) {
 		RotateUpwards();
 	}
 }
 
-void ModuleCamera::Zoom(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY)
+void ModuleCamera::Zoom(int deltaX, int deltaY)
 {
-	int deltaX = currentMouseX - oldMouseX;
-	int deltaY = currentMouseY - oldMouseY;
-
 	//Zoom in
 	if (deltaX > 0) {
 		GoSTRAIGHT();
@@ -226,10 +217,30 @@ void ModuleCamera::FocusModel()
 	mainCamera->up = float3(0.0f, 1.0f, 0.0f);
 }
 
-//TODO: Orbital
-void ModuleCamera::Orbital(int deltaX, int deltaY) {
-	
+void ModuleCamera::Orbital(int deltaX, int deltaY)
+{
+	const float sensitivity = 0.01f;
+
+	cameraYaw += -deltaX * sensitivity;
+	cameraPitch += -deltaY * sensitivity;
+
+	// Camera <---> Pivot distance (orbital "ray")
+	float3 orbitPos = mainCamera->pos - focusPoint;
+	float radius = orbitPos.Length();
+
+	//Calculate the new camera position
+	float newX = radius * cos(cameraPitch) * sin(cameraYaw);
+	float newY = radius * sin(cameraPitch);
+	float newZ = radius * cos(cameraPitch) * cos(cameraYaw);
+
+	// Assign the postion
+	mainCamera->pos = focusPoint + float3(newX, newY, newZ);
+
+	// Camera looking at focus point (model)
+	mainCamera->front = (focusPoint - mainCamera->pos).Normalized();
 }
+
+
 
 float ModuleCamera::SetHoritzontalFov(float verticalFov) {
 	// Change the horizontal FOV to meet the new aspect ratio.

@@ -49,9 +49,9 @@ public:
 
 	
 	/*----MOUSE INPUTS----*/
-	void DragCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
-	void RotateCamera(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
-	void Zoom(int oldMouseX, int oldMouseY, int currentMouseX, int currentMouseY);
+	void DragCamera(int deltaX, int deltaY);
+	void RotateCamera(int deltaX, int deltaY);
+	void Zoom(int deltaX, int deltaY);
 	void Zoom(int scrollDirection);
 	void Orbital(int movmentX, int movemntY);
 
@@ -69,7 +69,11 @@ private:
 	float4x4 modelMatrix;
 
 	//For focus to the model
-	float3 focusPoint = float3(0.0f, 0.0f, 0.0f); 
-	float defaultFocusDistance = 10.0f;           
+	float3 focusPoint = float3(0.0f, 0.0f, 0.0f); //Assuming model in coordinates origin
+	float defaultFocusDistance = 10.0f;          
+
+	//For orbit the model
+	float cameraYaw = 0.0f;
+	float cameraPitch = 0.0f;
 
 };
