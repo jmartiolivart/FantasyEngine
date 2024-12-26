@@ -39,6 +39,16 @@ private:
 	float f = 20.0f;
 	
 
+	
+	void AboutSection(bool show);
 	void OpenGitHubPage();
+	
+	/* Windows sections */
+	void LogSection();
+	void GeometryLogSection();
+	void FramerateGraphSection();
+	void WindowConfigurationSection();
+	void HardwareInfoSection();
+	void SoftwareVersionSection();
 	
 };
