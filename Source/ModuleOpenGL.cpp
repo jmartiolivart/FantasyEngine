@@ -98,6 +98,21 @@ void ModuleOpenGL::WindowResized(unsigned width, unsigned height) {
     App->camera->SetAspectRatio(newAspectRatio);
 }
 
+void ModuleOpenGL::VsyncEnabled(bool isEnabled)
+{
+    isEnabled ? glEnable(VSYNC) : glDisable(VSYNC);
+}
+
+void ModuleOpenGL::CullingFaceEnabled(bool isEnabled) {
+    
+    if(isEnabled) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT_AND_BACK);
+    }else {
+        glDisable(GL_CULL_FACE);
+    }
+}
+
 const math::float4x4& ModuleOpenGL::GetModelMatrix() const {
     return this->model;
 }

@@ -56,9 +56,7 @@ public:
 	void Orbital(int movmentX, int movemntY);
 
 
-
-
-	float cameraSpeed = 0.01f;
+	float cameraSpeed = 0.02f;
 
 private:
 	float nearPlane = 0.1f;

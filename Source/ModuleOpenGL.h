@@ -15,6 +15,8 @@ public:
     update_status PostUpdate() override;
     bool CleanUp() override;
     void WindowResized(unsigned width, unsigned height);
+    void VsyncEnabled(bool isEnable);
+    void CullingFaceEnabled(bool isEnable);
 
     const math::float4x4& GetModelMatrix() const;
     const math::float4x4& GetViewMatrix() const;

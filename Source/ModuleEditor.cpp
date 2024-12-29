@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "ModuleOpenGL.h"
 #include "ModuleWindow.h"
+#include "ModuleCamera.h" 
 #include "SDL.h"
 #include <GL/glew.h>
 #include "./imgui-docking/imgui.h"
@@ -82,22 +83,8 @@ update_status ModuleEditor::PreUpdate() {
     WindowConfigurationSection();
     HardwareInfoSection();
     SoftwareVersionSection();
+    GeneralOptionSection();
     ImGui::End();
-
-    //More possible options ?
-    /*if (ImGui::CollapsingHeader("OpenGL")) {
-        ImGui::Checkbox("VSync", &vsyncEnabled);
-        ImGui::Checkbox("Culling", &cullingEnabled);
-    }
-
-    if (ImGui::CollapsingHeader("Input")) {
-        ImGui::SliderFloat("Mouse Sensitivity", &mouseSensitivity, 0.1f, 2.0f);
-    }
-
-    if (ImGui::CollapsingHeader("Textures")) {
-        ImGui::Checkbox("Mipmapping", &mipMappingEnabled);
-        ImGui::Checkbox("Bilinear Filtering", &bilinearFiltering);
-    }*/
 
     return UPDATE_CONTINUE;
 }
@@ -244,4 +231,19 @@ void ModuleEditor::SoftwareVersionSection() {
         ImGui::Text("Tinygltf Version: 2.0");
     }
 
+}
+
+void ModuleEditor::GeneralOptionSection() {
+    
+    if (ImGui::CollapsingHeader("OpenGL")) {
+        if (ImGui::Checkbox("VSync", &vsyncEnabled)) {
+            App->render->VsyncEnabled(vsyncEnabled);
+        }
+        if (ImGui::Checkbox("Face culling front and back", &cullingEnabled)) {
+            App->render->CullingFaceEnabled(cullingEnabled);
+        }
+    }
+    if (ImGui::CollapsingHeader("Input")) {
+        ImGui::SliderFloat("Movement Speed", &App->camera->cameraSpeed, 0.01f, 0.1f);
+    }
 }

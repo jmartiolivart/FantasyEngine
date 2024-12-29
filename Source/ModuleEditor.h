@@ -50,5 +50,8 @@ private:
 	void WindowConfigurationSection();
 	void HardwareInfoSection();
 	void SoftwareVersionSection();
+	void GeneralOptionSection();
 	
+	bool vsyncEnabled = false;
+	bool cullingEnabled = false;
 };
