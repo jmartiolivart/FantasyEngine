@@ -53,6 +53,9 @@ update_status ModuleEditor::PreUpdate() {
     //Top bar options
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Console")) {
+                showConsole = !showConsole;
+            }
             if (ImGui::MenuItem("About")) {
                 showAbout = !showAbout;
             }
@@ -68,24 +71,29 @@ update_status ModuleEditor::PreUpdate() {
     }
 
 
-    //Sections main ui window
-    ImVec4 newTitleColor = ImVec4(0.8f, 0.2f, 0.2f, 1.0f); // Vermell fort
-    ImVec4 newTitleActiveColor = ImVec4(0.9f, 0.3f, 0.3f, 1.0f); // Vermell lleugerament més viu per al mode actiu
 
-    ImGui::PushStyleColor(ImGuiCol_TitleBg, newTitleColor);
-    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, newTitleActiveColor);
-    ImGui::Begin("Console");
-    ImGui::PopStyleColor(2);
-    AboutSection(showAbout);
-    LogSection();
-    GeometryLogSection();
-    FramerateGraphSection();
-    WindowConfigurationSection();
-    HardwareInfoSection();
-    SoftwareVersionSection();
-    GeneralOptionSection();
-    ImGui::End();
+    if (showConsole) {
+        //Sections main ui window
+        ImVec4 newTitleColor = ImVec4(0.8f, 0.2f, 0.2f, 1.0f);
+        ImVec4 newTitleActiveColor = ImVec4(0.9f, 0.3f, 0.3f, 1.0f);
 
+        ImGui::PushStyleColor(ImGuiCol_TitleBg, newTitleColor);
+        ImGui::PushStyleColor(ImGuiCol_TitleBgActive, newTitleActiveColor);
+
+        ImGui::Begin("Console", &showConsole);
+        ImGui::PopStyleColor(2);
+        AboutSection(showAbout);
+        LogSection();
+        GeometryLogSection();
+        FramerateGraphSection();
+        WindowConfigurationSection();
+        HardwareInfoSection();
+        SoftwareVersionSection();
+        GeneralOptionSection();
+        ImGui::End();
+
+    }
+    
     return UPDATE_CONTINUE;
 }
 
@@ -204,8 +212,6 @@ void ModuleEditor::WindowConfigurationSection() {
         if (ImGui::Checkbox("Resizable", &resizable)) {
             App->window->setResizable(resizable);
         }
-        ImGui::SliderInt("Window Width", App->GetWindow()->window_width, 800, 1920);
-        ImGui::SliderInt("Window Height", App->GetWindow()->window_height, 600, 1080);
     }
 
 }

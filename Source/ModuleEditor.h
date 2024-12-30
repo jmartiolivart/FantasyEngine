@@ -33,6 +33,7 @@ private:
 	bool fullscreen = false;
 	bool resizable = false;
 	bool showConfig = false;
+	bool showConsole = false;
 
 	const char* glsl_version = "#version 460";
 	char buf[20];

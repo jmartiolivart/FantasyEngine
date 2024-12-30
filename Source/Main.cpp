@@ -1,4 +1,11 @@
+//For detecting memory leaks
+#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
+#include <crtdbg.h>
+#ifdef _DEBUG
+#define new new (_NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+
 #include "Application.h"
 #include "ModuleOpenGL.h"
 #include "Globals.h"
@@ -20,6 +27,12 @@ Application* App = NULL;
 
 int main(int argc, char ** argv)
 {
+
+//For detecting memory leaks
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
 	int main_return = EXIT_FAILURE;
 	main_states state = MAIN_CREATION;
 
