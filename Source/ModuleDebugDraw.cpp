@@ -6,7 +6,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "ModuleDebugDraw.h"
-#include "ModuleOpenGL.h"
+#include "ModuleModel.h"
 
 
 class DDRenderInterfaceCoreGL final
@@ -617,8 +617,8 @@ update_status ModuleDebugDraw::PreUpdate()
 update_status ModuleDebugDraw::Update()
 {
     Draw(
-        App->render->GetViewMatrix(),
-        App->render->GetProjectionMatrix(),
+        App->model->GetViewMatrix(),
+        App->model->GetProjectionMatrix(),
         App->window->getWindowWidth(), 
         App->window->getWindowHeight());
 

@@ -7,7 +7,6 @@
 #include <GL/glew.h>
 #include <SDL.h>
 #include <string>
-#include "Mesh.h"
 #include "./math-library/Math/float4x4.h"
 #include "ModuleTexture.h"
 
@@ -60,15 +59,6 @@ update_status ModuleOpenGL::PreUpdate() {
 
 update_status ModuleOpenGL::Update() {
 
-    Model* model = App->model->GetModel();
-    this->view = App->camera->LookAt();
-    this->proj = App->camera->GetProjectionMatrix();
-
-    //Render the meshes
-    for (Mesh* mesh : model->GetMeshes()) {
-        mesh->Render();
-    }
-
     return UPDATE_CONTINUE;
 }
 
@@ -104,26 +94,16 @@ void ModuleOpenGL::VsyncEnabled(bool isEnabled)
 }
 
 void ModuleOpenGL::CullingFaceEnabled(bool isEnabled) {
-    
-    if(isEnabled) {
+
+    if (isEnabled) {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT_AND_BACK);
-    }else {
+    }
+    else {
         glDisable(GL_CULL_FACE);
     }
 }
 
-const math::float4x4& ModuleOpenGL::GetModelMatrix() const {
-    return this->model;
-}
-
-const math::float4x4& ModuleOpenGL::GetViewMatrix() const {
-    return this->view;
-}
-
-const math::float4x4& ModuleOpenGL::GetProjectionMatrix() const {
-    return this->proj;
-}
 
 int ModuleOpenGL::getProgram() const {
     return this->program;

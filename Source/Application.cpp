@@ -8,6 +8,7 @@
 #include "ModuleCamera.h"
 #include "ModuleTexture.h";
 #include "ModuleModel.h"
+#include "ModuleSkybox.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ Application::Application()
 	modules.push_back(window = new ModuleWindow());
 	modules.push_back(render = new ModuleOpenGL());
 	modules.push_back(camera = new ModuleCamera());
+	modules.push_back(skybox = new ModuleSkybox());
 	modules.push_back(texture = new ModuleTexture());
 	modules.push_back(model = new ModuleModel());
 	modules.push_back(input = new ModuleInput());

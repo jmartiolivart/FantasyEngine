@@ -17,6 +17,7 @@ class ModuleDebugDraw;
 class ModuleCamera;
 class ModuleTexture;
 class ModuleModel;
+class ModuleSkybox;
 
 class Application
 {
@@ -40,7 +41,7 @@ public:
     ModuleCamera* camera = nullptr;
     ModuleTexture* texture = nullptr;
     ModuleModel* model = nullptr;
-
+    ModuleSkybox* skybox = nullptr;
 
 private:
 

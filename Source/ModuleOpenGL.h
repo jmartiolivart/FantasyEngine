@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Module.h"
-#include "./math-library/Math/float4x4.h"
 #include <GL/glew.h>
 
 class ModuleOpenGL : public Module {
@@ -18,9 +17,6 @@ public:
     void VsyncEnabled(bool isEnable);
     void CullingFaceEnabled(bool isEnable);
 
-    const math::float4x4& GetModelMatrix() const;
-    const math::float4x4& GetViewMatrix() const;
-    const math::float4x4& GetProjectionMatrix() const;
     int getProgram() const;
    
     unsigned int textureID = 0;
@@ -31,10 +27,6 @@ private:
     int modelLoc = -1;
     int viewLoc = -1;
     int projLoc = -1;
-
-    math::float4x4 model;
-    math::float4x4 view;
-    math::float4x4 proj;
 
     void* context = nullptr;
 

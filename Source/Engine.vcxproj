@@ -196,6 +196,7 @@
     <ClCompile Include="ModuleInput.cpp" />
     <ClCompile Include="ModuleModel.cpp" />
     <ClCompile Include="ModuleOpenGL.cpp" />
+    <ClCompile Include="ModuleSkybox.cpp" />
     <ClCompile Include="ModuleTexture.cpp" />
     <ClCompile Include="ModuleWindow.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -282,12 +283,14 @@
     <ClInclude Include="math-library\Math\TransformOps.h" />
     <ClInclude Include="math-library\Time\Clock.h" />
     <ClInclude Include="ModuleModel.h" />
+    <ClInclude Include="ModuleSkybox.h" />
     <ClInclude Include="ModuleTexture.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="ModuleInput.h" />
     <ClInclude Include="ModuleOpenGL.h" />
     <ClInclude Include="ModuleWindow.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="tinygltf-2.9.3\tiny_gltf.h" />
   </ItemGroup>
   <ItemGroup>
